@@ -1,0 +1,15 @@
+File=Table
+Product=test_ci
+
+Flavor=ANY
+Qualifiers=
+
+Action=setup
+    ProdDir()
+    SetupEnv()
+    SetupRequired(generic_ci)
+    # set the project prefix for generic_ci so it knows
+    # where to look for config files...
+    EnvSet(PROJ_PREFIX, "TEST")
+    EnvSet(proj_PREFIX, "test")
+    PathPrepend(PATH, ${UPS_PROD_DIR}/bin)
