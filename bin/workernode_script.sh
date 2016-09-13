@@ -28,13 +28,21 @@ echo PWD: ${PWD}
 ls -lh ${CONDOR_DIR_INPUT}
 ls -lh ${INPUT_TAR_FILE}
 
-sed -i.orig "s;SRT_DIST=.*;SRT_DIST=$PWD;" srt/srt.sh
+unset CETPKG_BUILD
+unset OLD_MRB_BUILDDIR
+unset PRODUCTS
 
-source ${PWD}/setup/setup_nova.sh -r ${TEST_REVISION:-development} -b "${TEST_QUALS}" -6 "${PWD}" -e "/cvmfs/nova.opensciencegrid.org/externals:/grid/fermiapp/products/common/db:/grid/fermiapp/products/nova/externals"
 
-ifdh cp /pnfs/nova/persistent/users/vito/ci_tests_inputfiles/fardet_r00022972_s05_t00.raw fardet_r00022972_s05_t00.raw
+sed -i.orig "s#setenv MRB_TOP .*#setenv MRB_TOP \"$PWD\"# ; s#setenv MRB_SOURCE .*#setenv MRB_SOURCE \"$PWD\"#" localProducts_*_develop*/setup
 
-nova --rethrow-all -n 1 -o out1:fardet_r00022972_s05_t00_Current.artdaq.root --config daq2rawdigitjob.fcl fardet_r00022972_s05_t00.raw
+source /cvmfs/dune.opensciencegrid.org/products/dune/setup_dune.sh || source /grid/fermiapp/products/dune/setup_dune.sh
+source ${PWD}/localProducts_*_develop*/setup
+
+eval $(ups list -aK+ dunetpc -z localProducts_* | awk '{if ( $1 ~ "dunetpc" ) {print "setup "$1" "$2" -q "$4} }')
+
+ifdh cp /pnfs/dune/persistent/users/vito/ci_tests_inputfiles/AntiMuonCutEvents_LSU_v2_dune35t_Reference_gen_default.root AntiMuonCutEvents_LSU_v2_dune35t_Reference_gen_default.root
+
+lar --rethrow-all -n 1 -o AntiMuonCutEvents_LSU_v2_dune35t_Current_geant_default.root --config standard_g4_dune35t.fcl AntiMuonCutEvents_LSU_v2_dune35t_Reference_gen_default.root
 
 ls -lh
 
