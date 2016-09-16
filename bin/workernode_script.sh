@@ -47,6 +47,6 @@ report_exitcode=$?
 
 ls -lh
 
-curl  $curl_extra -v -o tr.out "$build_db_uri/build/add_test_result?fullname=${report_fullname}&serverurl=${report_serverurl}&phase=${report_phase}&testname=${CLUSTER}_${PROCESS}&statisticname="status"&platform=${report_platform}&buildtype=${report_buildtype}&hostname=${report_hostname}&value=${report_exitcode}"
+curl  $curl_extra -v -o tr.out "$build_db_uri/build/add_test_result?fullname=${report_fullname}&serverurl=${report_serverurl}&phase=${report_phase}&testname=${CLUSTER}_${PROCESS}&statisticname="status"&platform=${report_platform}&buildtype=${report_buildtype}&hostname=${report_hostname}&value=${report_exitcode}.0"
 
 curl  $curl_extra -v -o ep.out "$build_db_uri/build/end_phase?fullname=${report_fullname}&phase=${report_phase}&exitcode=${report_exitcode}&platform=${report_platform}&hostname=${report_hostname}&buildtype=${report_buildtype}"
