@@ -31,6 +31,7 @@ ls -lh ${INPUT_TAR_FILE}
 
 case "$1" in
     end)
+        ifdh ll ${CI_DCACHEDIR}
         report_exitcode=0
         curl  $curl_extra -v -o ep.out "$build_db_uri/build/end_phase?fullname=${report_fullname}&phase=${report_phase}&exitcode=${report_exitcode}&platform=${report_platform}&hostname=${report_hostname}&buildtype=${report_buildtype}"
         ;;
