@@ -1,6 +1,6 @@
 #!/bin/bash
 
-source ${CONDOR_DIR_INPUT}/setup_workernode.sh
+source ${LOCAL_WORK_DIR}/setup_workernode.sh
 
 
 echo -e "\n\n#######\n\n"
@@ -22,6 +22,7 @@ curl  $curl_extra -v -o tr.out "$build_db_uri/build/add_test_result?fullname=${r
 
 
 echo CONDOR_DIR_INPUT: ${CONDOR_DIR_INPUT}
+echo LOCAL_WORK_DIR: ${LOCAL_WORK_DIR}
 echo INPUT_TAR_FILE: ${INPUT_TAR_FILE}
 echo PWD: ${PWD}
 
@@ -42,7 +43,7 @@ eval $(ups list -aK+ dunetpc -z localProducts_* | awk '{if ( $1 ~ "dunetpc" ) {p
 
 ups active
 
-sh ${CONDOR_DIR_INPUT}/experiment_script.sh
+sh ${LOCAL_WORK_DIR}/experiment_script.sh
 report_exitcode=$?
 
 ls -lh
