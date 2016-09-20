@@ -12,4 +12,5 @@ Action=setup
     # where to look for config files...
     EnvSet(PROJ_PREFIX, "TEST")
     EnvSet(proj_PREFIX, "test")
+    EnvSet(TEST_CI_DIR, "${UPS_PROD_DIR}")
     PathPrepend(PATH, ${UPS_PROD_DIR}/bin)
