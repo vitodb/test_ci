@@ -19,7 +19,6 @@ echo -e "\n\n#######\n\n"
 #report_test_result "$report_phase" "$test_suite[not used]" "$test_name" "$statistic" "$value.0"
 
 report_test_result "$report_phase" "" "${CLUSTER}_${PROCESS}" "status" "-2.0"
-
 report_test_result "$report_phase" "" "${CLUSTER}_${PROCESS}" "status" "-1.0"
 
 
@@ -45,25 +44,11 @@ eval $(ups list -aK+ dunetpc -z localProducts_* | awk '{if ( $1 ~ "dunetpc" ) {p
 
 ups active
 
-case "$1" in
-    end)
-        ifdh ll ${CI_DCACHEDIR}
-        report_exitcode=$?
+sh ${CONDOR_DIR_INPUT}/experiment_script.sh
+report_exitcode=$?
 
-        report_test_result "$report_phase" "" "${CLUSTER}_${PROCESS}" "status" "${report_exitcode}.0"
+ls -lh
 
-        report_end_phase "$report_phase" "${report_exitcode}"
-        ;;
-    *)
+report_test_result "$report_phase" "" "${CLUSTER}_${PROCESS}" "status" "${report_exitcode}.0"
 
-        sh ${CONDOR_DIR_INPUT}/experiment_script.sh
-        report_exitcode=$?
-
-        ls -lh
-
-        report_test_result "$report_phase" "" "${CLUSTER}_${PROCESS}" "status" "${report_exitcode}.0"
-
-        ;;
-esac
-
-#exit 0
+exit ${report_exitcode}
