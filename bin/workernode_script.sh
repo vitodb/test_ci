@@ -44,6 +44,12 @@ eval $(ups list -aK+ dunetpc -z localProducts_* | awk '{if ( $1 ~ "dunetpc" ) {p
 
 ups active
 
+
+echo "1: $1"
+echo "2: $2"
+echo "@: $@"
+
+
 sh ${CONDOR_DIR_INPUT}/experiment_script.sh "$@"
 report_exitcode=$?
 
