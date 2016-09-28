@@ -49,6 +49,7 @@ echo "1: $1"
 echo "2: $2"
 echo "@: $@"
 
+ifdh cp ${CI_DCACHEDIR}/$(eval echo \$input_from_stage_${2}/\$input_filename_${2}) .
 
 sh ${CONDOR_DIR_INPUT}/experiment_script.sh "$@"
 report_exitcode=$?
