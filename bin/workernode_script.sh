@@ -49,8 +49,8 @@ echo "1: $1"
 echo "2: $2"
 echo "@: $@"
 
-echo CMD: ifdh cp ${CI_DCACHEDIR}/$(eval echo \$input_from_stage_${2}/\$input_filename_${2}) .
-# # # ifdh cp ${CI_DCACHEDIR}/$(eval echo \$input_from_stage_${2}/\$input_filename_${2}) .
+echo CMD: ifdh cp ${CI_DCACHEDIR}/$(eval echo \$input_from_stage_${1}/\$input_filename_${1}) .
+# # # ifdh cp ${CI_DCACHEDIR}/$(eval echo \$input_from_stage_${1}/\$input_filename_${1}) .
 
 sh ${CONDOR_DIR_INPUT}/experiment_script.sh "$@"
 report_exitcode=$?
