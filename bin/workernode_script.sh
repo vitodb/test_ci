@@ -49,10 +49,22 @@ echo "1: $1"
 echo "2: $2"
 echo "@: $@"
 
-echo CMD: ifdh cp ${CI_DCACHEDIR}/$(eval echo \$input_from_stage_${1}/\$input_filename_${1}) .
-# # # ifdh cp ${CI_DCACHEDIR}/$(eval echo \$input_from_stage_${1}/\$input_filename_${1}) .
 
-sh ${CONDOR_DIR_INPUT}/experiment_script.sh "$@"
+echo "Copy input file (if any)..."
+[ $(eval echo \$input_filename_${1}) ] &&
+    echo CMD: ifdh cp ${CI_DCACHEDIR}/$(eval echo \$input_from_stage_${1}/\$input_filename_${1}) . \
+    # # # ifdh cp ${CI_DCACHEDIR}/$(eval echo \$input_from_stage_${1}/\$input_filename_${1}) . \
+|| echo "No file to transfer"
+
+echo "run exp code..."
+echo CMD: $(eval echo \$executable_${1}) $(eval echo \$arguments_${1} -c \$FHiCL_${1} -n \$nevents_per_job_${1} -o \$output_filename_${1} \$input_filename_${1})
+# # # $(eval echo \$executable_${1}) $(eval echo \$arguments_${1} -c \$FHiCL_${1} -n \$nevents_per_job_${1} -o \$output_filename_${1} \$input_filename_${1})
+
+echo "Copy output file..."
+echo CMD: ifdh cp ${CI_DCACHEDIR}/$(eval echo \$input_from_stage_${1}/\$input_filename_${1} ${CI_DCACHEDIR}/${1}/)
+# # # ifdh cp ${CI_DCACHEDIR}/$(eval echo \$input_from_stage_${1}/\$input_filename_${1} ${CI_DCACHEDIR}/${1}/)
+
+# sh ${CONDOR_DIR_INPUT}/experiment_script.sh "$@"
 report_exitcode=$?
 
 ls -lh

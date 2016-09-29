@@ -11,11 +11,8 @@ ups active
 #----------------------------------
 
 echo "1: $1"
-shift
 echo "2: $2"
-shift
 echo "@: $@"
-echo "@: ${@//@/ }"
 
 echo CMD: $(eval echo \$executable_${1}) $(eval echo \$arguments_${1} -c \$FHiCL_${1} -n \$nevents_per_job_${1} -o \$output_filename_${1} \$input_filename_${1})
 
