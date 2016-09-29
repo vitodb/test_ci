@@ -52,12 +52,14 @@ echo "@: $@"
 
 
 echo "Copy input file (if any)..."
+eval echo \$input_filename_${1}
 # # # [ $(eval echo \$input_filename_${1}) ] &&
 # # #     ifdh cp ${CI_DCACHEDIR}/$(eval echo \$input_from_stage_${1}/\$input_filename_${1}) . ||
 # # #     echo "No file to transfer"
 [ $(eval echo \$input_filename_${1}) ] &&
     (new_input_filename=$(eval echo \$input_filename_${1})
     new_input_filename=${new_input_filename//.root/_${PROCESS}.root}
+    echo CMD: ifdh cp ${CI_DCACHEDIR}/$(eval echo \$input_from_stage_${1})/$new_input_filename .
     ifdh cp ${CI_DCACHEDIR}/$(eval echo \$input_from_stage_${1})/$new_input_filename .) ||
     echo "No file to transfer"
 
