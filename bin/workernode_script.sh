@@ -52,20 +52,30 @@ echo "@: $@"
 
 
 echo "Copy input file (if any)..."
+# # # [ $(eval echo \$input_filename_${1}) ] &&
+# # #     ifdh cp ${CI_DCACHEDIR}/$(eval echo \$input_from_stage_${1}/\$input_filename_${1}) . ||
+# # #     echo "No file to transfer"
 [ $(eval echo \$input_filename_${1}) ] &&
-    ifdh cp ${CI_DCACHEDIR}/$(eval echo \$input_from_stage_${1}/\$input_filename_${1}) . ||
+    new_input_filename=$(eval echo \$input_filename_${1})
+    new_input_filename=${new_input_filename//.root/_${PROCESS}.root}
+    echo CMD: ifdh cp ${CI_DCACHEDIR}/$(eval echo \$input_from_stage_${1})/$new_input_filename . ||
     echo "No file to transfer"
 
 
 echo "run exp code..."
 echo CMD: $(eval echo \$executable_${1}) $(eval echo \$arguments_${1} -c \$FHiCL_${1} -n \$nevents_per_job_${1} -o \$output_filename_${1} \$input_filename_${1})
-$(eval echo \$executable_${1}) $(eval echo \$arguments_${1} -c \$FHiCL_${1} -n \$nevents_per_job_${1} -o \$output_filename_${1} \$input_filename_${1})
-
+# # # $(eval echo \$executable_${1}) $(eval echo \$arguments_${1} -c \$FHiCL_${1} -n \$nevents_per_job_${1} -o \$output_filename_${1} \$input_filename_${1})
+touch $(eval echo \$output_filename_${1})
+ls -lh
 echo "Copy output file..."
 new_output_filename=$(eval echo \$output_filename_${1})
 new_output_filename=${new_output_filename//.root/_${PROCESS}.root}
-echo CMD: ifdh cp ${PWD}/$(eval echo \$output_filename_${1} ${CI_DCACHEDIR}/${1}/$new_output_filename)
-ifdh cp ${PWD}/$(eval echo \$output_filename_${1} ${CI_DCACHEDIR}/${1}/$new_output_filename)
+echo CMD: ifdh cp ${PWD}/$(eval echo \$output_filename_${1}) ${CI_DCACHEDIR}/${1}/$new_output_filename
+touch $new_output_filename
+ifdh ls ${PWD}/$(eval echo \$output_filename_${1})
+ifdh ls ${CI_DCACHEDIR}/${1}
+ifdh ls $new_output_filename
+# # # ifdh cp ${PWD}/$(eval echo \$output_filename_${1} ${CI_DCACHEDIR}/${1}/$new_output_filename)
 
 # sh ${CONDOR_DIR_INPUT}/experiment_script.sh "$@"
 report_exitcode=$?
