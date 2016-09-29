@@ -64,6 +64,8 @@ eval echo \$input_filename_${1}
     echo "No file to transfer"
 
 
+ls -lh
+
 echo "run exp code..."
 new_output_filename=$(eval echo \$output_filename_${1})
 new_output_filename=${new_output_filename//.root/_${PROCESS}.root}
