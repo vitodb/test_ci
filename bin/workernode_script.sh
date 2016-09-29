@@ -75,6 +75,9 @@ ls -lh
 echo "Copy output file..."
 new_output_filename=$(eval echo \$output_to_transfer_${1})
 new_output_filename=${new_output_filename//.root/_${PROCESS}.root}
+echo CMD: mv -v $(eval echo \$output_to_transfer_${1}) $new_output_filename
+mv -v $(eval echo \$output_to_transfer_${1}) $new_output_filename
+ls -lh
 echo CMD: ifdh cp ${PWD}/$new_output_filename ${CI_DCACHEDIR}/${1}/$new_output_filename
 ifdh cp ${PWD}/$new_output_filename ${CI_DCACHEDIR}/${1}/$new_output_filename
 
