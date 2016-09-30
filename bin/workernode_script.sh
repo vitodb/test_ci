@@ -1,8 +1,8 @@
 #!/bin/bash
 
 source ${CONDOR_DIR_INPUT}/setup_workernode.sh
-source ${CONDOR_DIR_INPUT}/reporter_functions.sh
-
+#source ${CONDOR_DIR_INPUT}/reporter_functions.sh
+source ${_CONDOR_JOB_IWD}/${proj_PREFIX}_ci/bin/reporter_functions.sh
 
 echo -e "\n\n#######\n\n"
 
