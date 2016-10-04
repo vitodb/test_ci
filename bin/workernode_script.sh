@@ -45,6 +45,11 @@ eval $(ups list -aK+ uboonecode -z localProducts_* | awk '{if ( $1 ~ "uboonecode
 
 ups active
 
+#setup jobsub_client
+unsetup cigetcert
+setup cigetcert -t
+ups active
+
 
 echo "1: $1"
 echo "2: $2"
