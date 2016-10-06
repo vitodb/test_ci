@@ -105,12 +105,12 @@ merge() {
 
     eval echo \$input_filename_${EXP_STAGE}
     echo new_input_filename: $new_input_filename
-    echo CMD: ifdh findMatchingFiles ${CI_DCACHEDIR}/$input_from_stage_${EXP_STAGE} ${new_input_filename}
-    ifdh findMatchingFiles ${CI_DCACHEDIR}/$input_from_stage_${EXP_STAGE} ${new_input_filename}
+    echo CMD: ifdh findMatchingFiles ${CI_DCACHEDIR}/$(eval echo \$input_from_stage_${EXP_STAGE}) ${new_input_filename}
+    ifdh findMatchingFiles ${CI_DCACHEDIR}/$(eval echo \$input_from_stage_${EXP_STAGE}) ${new_input_filename}
 
-    echo CMD: hadd $output_filename_${EXP_STAGE} $(for source_file in $( ifdh findMatchingFiles ${CI_DCACHEDIR}/$input_from_stage_${EXP_STAGE} ${new_input_filename} 2> /dev/null | awk '{print $1}' ) ; do echo root://fndca1/${source_file}; done)
+    echo CMD: hadd $(eval echo \$output_filename_${EXP_STAGE}) $(for source_file in $( ifdh findMatchingFiles ${CI_DCACHEDIR}/$(eval echo \$input_from_stage_${EXP_STAGE}) ${new_input_filename} 2> /dev/null | awk '{print $1}' ) ; do echo root://fndca1/${source_file}; done)
 
-    hadd $output_filename_${EXP_STAGE} $(for source_file in $( ifdh findMatchingFiles ${CI_DCACHEDIR}/$input_from_stage_${EXP_STAGE} ${new_input_filename} 2> /dev/null | awk '{print $1}' ) ; do echo root://fndca1/${source_file}; done)
+    hadd $(eval echo \$output_filename_${EXP_STAGE}) $(for source_file in $( ifdh findMatchingFiles ${CI_DCACHEDIR}/$(eval echo \$input_from_stage_${EXP_STAGE}) ${new_input_filename} 2> /dev/null | awk '{print $1}' ) ; do echo root://fndca1/${source_file}; done)
 
     report_exitcode=$?
 
