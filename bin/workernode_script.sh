@@ -101,18 +101,28 @@ merge() {
     new_input_filename=$(eval echo \$input_filename_${EXP_STAGE})
     new_input_filename=${new_input_filename//.root/*.root}
 
+    export IFDH_DEBUG=1
+
+    eval echo \$input_filename_${EXP_STAGE}
+    echo new_input_filename: $new_input_filename
+    echo CMD: ifdh findMatchingFiles ${CI_DCACHEDIR}/$input_from_stage_${EXP_STAGE} ${new_input_filename}
     ifdh findMatchingFiles ${CI_DCACHEDIR}/$input_from_stage_${EXP_STAGE} ${new_input_filename}
+
+    echo CMD: hadd $output_filename_${EXP_STAGE} $(for source_file in $( ifdh findMatchingFiles ${CI_DCACHEDIR}/$input_from_stage_${EXP_STAGE} ${new_input_filename} 2> /dev/null | awk '{print $1}' ) ; do echo root://fndca1/${source_file}; done)
 
     hadd $output_filename_${EXP_STAGE} $(for source_file in $( ifdh findMatchingFiles ${CI_DCACHEDIR}/$input_from_stage_${EXP_STAGE} ${new_input_filename} 2> /dev/null | awk '{print $1}' ) ; do echo root://fndca1/${source_file}; done)
 
     report_exitcode=$?
 
 
+    echo CMD: calorimetry.py --tracker trackkalmanhit --input $output_filename_${EXP_STAGE} --output calorimetry_validation.root
     calorimetry.py --tracker trackkalmanhit --input $output_filename_${EXP_STAGE} --output calorimetry_validation.root
 
+    echo CMD: makeplots.py --input calorimetry_validation.root --calorimetry
     makeplots.py --input calorimetry_validation.root --calorimetry
 
 
+    echo CMD: ifdh cp -D $output_filename_${EXP_STAGE} calorimetry_validation.root calorimetry ${CI_DCACHEDIR}/${EXP_STAGE}
     ifdh cp -D $output_filename_${EXP_STAGE} calorimetry_validation.root calorimetry ${CI_DCACHEDIR}/${EXP_STAGE}
 
     #report_img "$report_phase" "$test_suite" "$testname" "hits$i" "$f" "$desc"
