@@ -122,9 +122,6 @@ merge() {
     makeplots.py --input calorimetry_validation.root --calorimetry
 
 
-    echo CMD: ifdh cp -D $(eval echo \$output_filename_${EXP_STAGE}) calorimetry_validation.root calorimetry ${CI_DCACHEDIR}/${EXP_STAGE}
-    ifdh cp -D $(eval echo \$output_filename_${EXP_STAGE}) calorimetry_validation.root calorimetry ${CI_DCACHEDIR}/${EXP_STAGE}
-
     #report_img "$report_phase" "$test_suite" "$testname" "hits$i" "$f" "$desc"
     i=0
     prev=1
@@ -137,6 +134,12 @@ merge() {
         prev="/<img.*$bf/"
         report_img "$report_phase" "" "execute_${EXP_STAGE}_${CLUSTER}_${PROCESS}" "hits$i" "$f" "$desc"
     done
+
+    echo CMD: ifdh cp -D $(eval echo \$output_filename_${EXP_STAGE}) calorimetry_validation.root calorimetry ${CI_DCACHEDIR}/${EXP_STAGE}
+    ifdh cp -D $(eval echo \$output_filename_${EXP_STAGE}) calorimetry_validation.root  ${CI_DCACHEDIR}/${EXP_STAGE}
+    ifdh mkdir ${CI_DCACHEDIR}/${EXP_STAGE}/calorimetry
+    ifdh cp -D  calorimetry/* ${CI_DCACHEDIR}/${EXP_STAGE}/calorimetry
+
 
     exit ${report_exitcode}
 
