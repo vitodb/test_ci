@@ -101,7 +101,9 @@ merge() {
     new_input_filename=$(eval echo \$input_filename_${EXP_STAGE})
     new_input_filename=${new_input_filename//.root/*.root}
 
-    hadd $output_filename_${EXP_STAGE} $(for f in $( ifdh findMatchingFiles ${CI_DCACHEDIR}/$input_from_stage_${EXP_STAGE} input_filename ${new_input_filename} 2> /dev/null | awk '{print $1}' ) ; do echo root://fndca1/${f}; done)
+    ifdh findMatchingFiles ${CI_DCACHEDIR}/$input_from_stage_${EXP_STAGE} ${new_input_filename}
+
+    hadd $output_filename_${EXP_STAGE} $(for source_file in $( ifdh findMatchingFiles ${CI_DCACHEDIR}/$input_from_stage_${EXP_STAGE} ${new_input_filename} 2> /dev/null | awk '{print $1}' ) ; do echo root://fndca1/${source_file}; done)
 
     report_exitcode=$?
 
@@ -110,6 +112,8 @@ merge() {
 
     makeplots.py --input calorimetry_validation.root --calorimetry
 
+
+    ifdh cp -D $output_filename_${EXP_STAGE} calorimetry_validation.root calorimetry ${CI_DCACHEDIR}/${EXP_STAGE}
 
     #report_img "$report_phase" "$test_suite" "$testname" "hits$i" "$f" "$desc"
     i=0
