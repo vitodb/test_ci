@@ -18,8 +18,8 @@ echo -e "\n\n#######\n\n"
 
 #report_test_result "$report_phase" "$test_suite[not used]" "$test_name" "$statistic" "$value.0"
 
-report_test_result "$report_phase" "" "${CLUSTER}_${PROCESS}" "status" "-2.0"
-report_test_result "$report_phase" "" "${CLUSTER}_${PROCESS}" "status" "-1.0"
+report_test_result "$report_phase" "" "execute_${CLUSTER}_${PROCESS}" "status" "-2.0"
+report_test_result "$report_phase" "" "execute_${CLUSTER}_${PROCESS}" "status" "-1.0"
 
 
 
@@ -90,6 +90,6 @@ report_exitcode=$?
 
 ls -lh
 
-report_test_result "$report_phase" "" "${CLUSTER}_${PROCESS}" "status" "${report_exitcode}.0"
+report_test_result "$report_phase" "" "execute_${CLUSTER}_${PROCESS}" "status" "${report_exitcode}.0"
 
 exit ${report_exitcode}
