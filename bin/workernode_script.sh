@@ -15,11 +15,12 @@ ls -lh
 
 echo -e "\n\n#######\n\n"
 
+EXP_STAGE=${1}
 
 #report_test_result "$report_phase" "$test_suite[not used]" "$test_name" "$statistic" "$value.0"
 
-report_test_result "$report_phase" "" "execute_${CLUSTER}_${PROCESS}" "status" "-2.0"
-report_test_result "$report_phase" "" "execute_${CLUSTER}_${PROCESS}" "status" "-1.0"
+report_test_result "$report_phase" "" "execute_${EXP_STAGE}_${CLUSTER}_${PROCESS}" "status" "-2.0"
+report_test_result "$report_phase" "" "execute_${EXP_STAGE}_${CLUSTER}_${PROCESS}" "status" "-1.0"
 
 
 
@@ -57,39 +58,39 @@ echo "@: $@"
 
 
 echo "Copy input file (if any)..."
-eval echo \$input_filename_${1}
-# # # [ $(eval echo \$input_filename_${1}) ] &&
-# # #     ifdh cp ${CI_DCACHEDIR}/$(eval echo \$input_from_stage_${1}/\$input_filename_${1}) . ||
+eval echo \$input_filename_${EXP_STAGE}
+# # # [ $(eval echo \$input_filename_${EXP_STAGE}) ] &&
+# # #     ifdh cp ${CI_DCACHEDIR}/$(eval echo \$input_from_stage_${EXP_STAGE}/\$input_filename_${EXP_STAGE}) . ||
 # # #     echo "No file to transfer"
-new_input_filename=$(eval echo \$input_filename_${1})
+new_input_filename=$(eval echo \$input_filename_${EXP_STAGE})
 new_input_filename=${new_input_filename//.root/_${PROCESS}.root}
 [ $(eval echo $new_input_filename) ] &&
-    (echo CMD: ifdh cp ${CI_DCACHEDIR}/$(eval echo \$input_from_stage_${1})/$new_input_filename .
-    ifdh cp ${CI_DCACHEDIR}/$(eval echo \$input_from_stage_${1})/$new_input_filename .) ||
+    (echo CMD: ifdh cp ${CI_DCACHEDIR}/$(eval echo \$input_from_stage_${EXP_STAGE})/$new_input_filename .
+    ifdh cp ${CI_DCACHEDIR}/$(eval echo \$input_from_stage_${EXP_STAGE})/$new_input_filename .) ||
     echo "No file to transfer"
 
 
 ls -lh
 
 echo "run exp code..."
-echo CMD: $(eval echo \$executable_${1}) $(eval echo \$arguments_${1} -c \$FHiCL_${1} -n \$nevents_per_job_${1} -o \$output_filename_${1}) $new_input_filename
-$(eval echo \$executable_${1}) $(eval echo \$arguments_${1} -c \$FHiCL_${1} -n \$nevents_per_job_${1} -o \$output_filename_${1}) $new_input_filename
+echo CMD: $(eval echo \$executable_${EXP_STAGE}) $(eval echo \$arguments_${EXP_STAGE} -c \$FHiCL_${EXP_STAGE} -n \$nevents_per_job_${EXP_STAGE} -o \$output_filename_${EXP_STAGE}) $new_input_filename
+$(eval echo \$executable_${EXP_STAGE}) $(eval echo \$arguments_${EXP_STAGE} -c \$FHiCL_${EXP_STAGE} -n \$nevents_per_job_${EXP_STAGE} -o \$output_filename_${EXP_STAGE}) $new_input_filename
 
 ls -lh
 
 echo "Copy output file..."
-new_output_filename=$(eval echo \$output_to_transfer_${1})
+new_output_filename=$(eval echo \$output_to_transfer_${EXP_STAGE})
 new_output_filename=${new_output_filename//.root/_${PROCESS}.root}
-echo CMD: mv -v $(eval echo \$output_to_transfer_${1}) $new_output_filename
-mv -v $(eval echo \$output_to_transfer_${1}) $new_output_filename
+echo CMD: mv -v $(eval echo \$output_to_transfer_${EXP_STAGE}) $new_output_filename
+mv -v $(eval echo \$output_to_transfer_${EXP_STAGE}) $new_output_filename
 ls -lh
-echo CMD: ifdh cp ${PWD}/$new_output_filename ${CI_DCACHEDIR}/${1}/$new_output_filename
-ifdh cp ${PWD}/$new_output_filename ${CI_DCACHEDIR}/${1}/$new_output_filename
+echo CMD: ifdh cp ${PWD}/$new_output_filename ${CI_DCACHEDIR}/${EXP_STAGE}/$new_output_filename
+ifdh cp ${PWD}/$new_output_filename ${CI_DCACHEDIR}/${EXP_STAGE}/$new_output_filename
 
 report_exitcode=$?
 
 ls -lh
 
-report_test_result "$report_phase" "" "execute_${CLUSTER}_${PROCESS}" "status" "${report_exitcode}.0"
+report_test_result "$report_phase" "" "execute_${EXP_STAGE}_${CLUSTER}_${PROCESS}" "status" "${report_exitcode}.0"
 
 exit ${report_exitcode}
