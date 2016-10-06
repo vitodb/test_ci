@@ -56,41 +56,82 @@ echo "1: $1"
 echo "2: $2"
 echo "@: $@"
 
+standard() {
+    echo "Copy input file (if any)..."
+    eval echo \$input_filename_${EXP_STAGE}
+    # # # [ $(eval echo \$input_filename_${EXP_STAGE}) ] &&
+    # # #     ifdh cp ${CI_DCACHEDIR}/$(eval echo \$input_from_stage_${EXP_STAGE}/\$input_filename_${EXP_STAGE}) . ||
+    # # #     echo "No file to transfer"
+    new_input_filename=$(eval echo \$input_filename_${EXP_STAGE})
+    new_input_filename=${new_input_filename//.root/_${PROCESS}.root}
+    [ $(eval echo $new_input_filename) ] &&
+        (echo CMD: ifdh cp ${CI_DCACHEDIR}/$(eval echo \$input_from_stage_${EXP_STAGE})/$new_input_filename .
+        ifdh cp ${CI_DCACHEDIR}/$(eval echo \$input_from_stage_${EXP_STAGE})/$new_input_filename .) ||
+        echo "No file to transfer"
 
-echo "Copy input file (if any)..."
-eval echo \$input_filename_${EXP_STAGE}
-# # # [ $(eval echo \$input_filename_${EXP_STAGE}) ] &&
-# # #     ifdh cp ${CI_DCACHEDIR}/$(eval echo \$input_from_stage_${EXP_STAGE}/\$input_filename_${EXP_STAGE}) . ||
-# # #     echo "No file to transfer"
-new_input_filename=$(eval echo \$input_filename_${EXP_STAGE})
-new_input_filename=${new_input_filename//.root/_${PROCESS}.root}
-[ $(eval echo $new_input_filename) ] &&
-    (echo CMD: ifdh cp ${CI_DCACHEDIR}/$(eval echo \$input_from_stage_${EXP_STAGE})/$new_input_filename .
-    ifdh cp ${CI_DCACHEDIR}/$(eval echo \$input_from_stage_${EXP_STAGE})/$new_input_filename .) ||
-    echo "No file to transfer"
+
+    ls -lh
+
+    echo "run exp code..."
+    echo CMD: $(eval echo \$executable_${EXP_STAGE}) $(eval echo \$arguments_${EXP_STAGE} -c \$FHiCL_${EXP_STAGE} -n \$nevents_per_job_${EXP_STAGE} -o \$output_filename_${EXP_STAGE}) $new_input_filename
+    $(eval echo \$executable_${EXP_STAGE}) $(eval echo \$arguments_${EXP_STAGE} -c \$FHiCL_${EXP_STAGE} -n \$nevents_per_job_${EXP_STAGE} -o \$output_filename_${EXP_STAGE}) $new_input_filename
+
+    ls -lh
+
+    echo "Copy output file..."
+    new_output_filename=$(eval echo \$output_to_transfer_${EXP_STAGE})
+    new_output_filename=${new_output_filename//.root/_${PROCESS}.root}
+    echo CMD: mv -v $(eval echo \$output_to_transfer_${EXP_STAGE}) $new_output_filename
+    mv -v $(eval echo \$output_to_transfer_${EXP_STAGE}) $new_output_filename
+    ls -lh
+    echo CMD: ifdh cp ${PWD}/$new_output_filename ${CI_DCACHEDIR}/${EXP_STAGE}/$new_output_filename
+    ifdh cp ${PWD}/$new_output_filename ${CI_DCACHEDIR}/${EXP_STAGE}/$new_output_filename
+
+    report_exitcode=$?
+
+    ls -lh
+
+    report_test_result "$report_phase" "" "execute_${EXP_STAGE}_${CLUSTER}_${PROCESS}" "status" "${report_exitcode}.0"
+
+    exit ${report_exitcode}
+}
+
+merge() {
+
+    new_input_filename=$(eval echo \$input_filename_${EXP_STAGE})
+    new_input_filename=${new_input_filename//.root/*.root}
+
+    hadd $output_filename_${EXP_STAGE} $(for f in $( ifdh findMatchingFiles ${CI_DCACHEDIR}/$input_from_stage_${EXP_STAGE} input_filename ${new_input_filename} 2> /dev/null | awk '{print $1}' ) ; do echo root://fndca1/${f}; done)
+
+    report_exitcode=$?
 
 
-ls -lh
+    calorimetry.py --tracker trackkalmanhit --input $output_filename_${EXP_STAGE} --output calorimetry_validation.root
 
-echo "run exp code..."
-echo CMD: $(eval echo \$executable_${EXP_STAGE}) $(eval echo \$arguments_${EXP_STAGE} -c \$FHiCL_${EXP_STAGE} -n \$nevents_per_job_${EXP_STAGE} -o \$output_filename_${EXP_STAGE}) $new_input_filename
-$(eval echo \$executable_${EXP_STAGE}) $(eval echo \$arguments_${EXP_STAGE} -c \$FHiCL_${EXP_STAGE} -n \$nevents_per_job_${EXP_STAGE} -o \$output_filename_${EXP_STAGE}) $new_input_filename
+    makeplots.py --input calorimetry_validation.root --calorimetry
 
-ls -lh
 
-echo "Copy output file..."
-new_output_filename=$(eval echo \$output_to_transfer_${EXP_STAGE})
-new_output_filename=${new_output_filename//.root/_${PROCESS}.root}
-echo CMD: mv -v $(eval echo \$output_to_transfer_${EXP_STAGE}) $new_output_filename
-mv -v $(eval echo \$output_to_transfer_${EXP_STAGE}) $new_output_filename
-ls -lh
-echo CMD: ifdh cp ${PWD}/$new_output_filename ${CI_DCACHEDIR}/${EXP_STAGE}/$new_output_filename
-ifdh cp ${PWD}/$new_output_filename ${CI_DCACHEDIR}/${EXP_STAGE}/$new_output_filename
+    #report_img "$report_phase" "$test_suite" "$testname" "hits$i" "$f" "$desc"
+    i=0
+    prev=1
+    for f in calorimetry/*.gif
+    do
+        bf=`basename $f`
+        i=$((i+1))
+        echo --  -e "1,${prev}d" -e "/<img src=.*${bf}/,\$d" -e 's/<[^>]*>//g' execute_${EXP_STAGE}_${CLUSTER}_${PROCESS}/histocomp.html
+        desc=`sed -e "1,${prev}d" -e "/<img src=.*${bf}/,\\$d" -e 's/<[^>]*>//g' execute_${EXP_STAGE}_${CLUSTER}_${PROCESS}/histocomp.html`
+        prev="/<img.*$bf/"
+        report_img "$report_phase" "" "execute_${EXP_STAGE}_${CLUSTER}_${PROCESS}" "hits$i" "$f" "$desc"
+    done
 
-report_exitcode=$?
+    exit ${report_exitcode}
 
-ls -lh
+}
 
-report_test_result "$report_phase" "" "execute_${EXP_STAGE}_${CLUSTER}_${PROCESS}" "status" "${report_exitcode}.0"
 
-exit ${report_exitcode}
+case "x$1" in
+    xmerge) merge ;;
+    x)      break ;;
+    x*)     standard ;;
+esac
+
