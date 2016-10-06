@@ -115,15 +115,15 @@ merge() {
     report_exitcode=$?
 
 
-    echo CMD: calorimetry.py --tracker trackkalmanhit --input $output_filename_${EXP_STAGE} --output calorimetry_validation.root
-    calorimetry.py --tracker trackkalmanhit --input $output_filename_${EXP_STAGE} --output calorimetry_validation.root
+    echo CMD: calorimetry.py --tracker trackkalmanhit --input $(eval echo \$output_filename_${EXP_STAGE}) --output calorimetry_validation.root
+    calorimetry.py --tracker trackkalmanhit --input $(eval echo \$output_filename_${EXP_STAGE}) --output calorimetry_validation.root
 
     echo CMD: makeplots.py --input calorimetry_validation.root --calorimetry
     makeplots.py --input calorimetry_validation.root --calorimetry
 
 
-    echo CMD: ifdh cp -D $output_filename_${EXP_STAGE} calorimetry_validation.root calorimetry ${CI_DCACHEDIR}/${EXP_STAGE}
-    ifdh cp -D $output_filename_${EXP_STAGE} calorimetry_validation.root calorimetry ${CI_DCACHEDIR}/${EXP_STAGE}
+    echo CMD: ifdh cp -D $(eval echo \$output_filename_${EXP_STAGE}) calorimetry_validation.root calorimetry ${CI_DCACHEDIR}/${EXP_STAGE}
+    ifdh cp -D $(eval echo \$output_filename_${EXP_STAGE}) calorimetry_validation.root calorimetry ${CI_DCACHEDIR}/${EXP_STAGE}
 
     #report_img "$report_phase" "$test_suite" "$testname" "hits$i" "$f" "$desc"
     i=0
