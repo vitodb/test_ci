@@ -52,16 +52,11 @@ setup cigetcert -t
 ups active
 
 
-echo "1: $1"
-echo "2: $2"
 echo "@: $@"
 
 standard() {
     echo "Copy input file (if any)..."
     eval echo \$input_filename_${EXP_STAGE}
-    # # # [ $(eval echo \$input_filename_${EXP_STAGE}) ] &&
-    # # #     ifdh cp ${CI_DCACHEDIR}/$(eval echo \$input_from_stage_${EXP_STAGE}/\$input_filename_${EXP_STAGE}) . ||
-    # # #     echo "No file to transfer"
     new_input_filename=$(eval echo \$input_filename_${EXP_STAGE})
     new_input_filename=${new_input_filename//.root/_${PROCESS}.root}
     [ $(eval echo $new_input_filename) ] &&
