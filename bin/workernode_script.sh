@@ -123,7 +123,7 @@ merge() {
         bf=`basename $f`
         hist_desc="hits ${bf//.gif/}"
         hist_name="${bf//.gif/}"
-        report_img "$report_phase" "" "execute_${EXP_STAGE}_${PROCESS}" "hist_name" "$f" "$hist_desc"
+        report_img "$report_phase" "" "execute_${EXP_STAGE}_${PROCESS}" "$hist_name" "$f" "$hist_desc"
     done
 
     echo CMD: ifdh cp -D $(eval echo \$output_filename_${EXP_STAGE}) calorimetry_validation.root calorimetry ${CI_DCACHEDIR}/${EXP_STAGE}
