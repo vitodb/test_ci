@@ -127,11 +127,12 @@ merge() {
     prev=1
     for f in calorimetry/*.gif
     do
-        bf=`basename $f`
         i=$((i+1))
-        echo --  -e "1,${prev}d" -e "/<img src=.*${bf}/,\$d" -e 's/<[^>]*>//g' execute_${EXP_STAGE}_${CLUSTER}_${PROCESS}/histocomp.html
-        desc=`sed -e "1,${prev}d" -e "/<img src=.*${bf}/,\\$d" -e 's/<[^>]*>//g' execute_${EXP_STAGE}_${CLUSTER}_${PROCESS}/histocomp.html`
-        prev="/<img.*$bf/"
+        bf=`basename $f`
+        #echo --  -e "1,${prev}d" -e "/<img src=.*${bf}/,\$d" -e 's/<[^>]*>//g' execute_${EXP_STAGE}_${CLUSTER}_${PROCESS}/histocomp.html
+        #desc=`sed -e "1,${prev}d" -e "/<img src=.*${bf}/,\\$d" -e 's/<[^>]*>//g' execute_${EXP_STAGE}_${CLUSTER}_${PROCESS}/histocomp.html`
+        #prev="/<img.*$bf/"
+        desc="hits$i ${bf//.gif/}"
         report_img "$report_phase" "" "execute_${EXP_STAGE}_${CLUSTER}_${PROCESS}" "hits$i" "$f" "$desc"
     done
 
@@ -140,6 +141,7 @@ merge() {
     ifdh mkdir ${CI_DCACHEDIR}/${EXP_STAGE}/calorimetry
     ifdh cp -D  calorimetry/* ${CI_DCACHEDIR}/${EXP_STAGE}/calorimetry
 
+    report_test_result "$report_phase" "" "execute_${EXP_STAGE}_${CLUSTER}_${PROCESS}" "status" "${report_exitcode}.0"
 
     exit ${report_exitcode}
 
