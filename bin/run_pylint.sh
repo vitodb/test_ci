@@ -191,7 +191,7 @@ HTML_TD_FAILED="border: 0px solid black;border-collapse: collapse;background-col
 
 git_branches="$1"
 WORKSPACE=`pwd`
-export GLIDEINWMS_SRC=$WORKSPACE/glideinwms
+# export GLIDEINWMS_SRC=$WORKSPACE/glideinwms
 
 source $GLIDEINWMS_SRC/build/jenkins/utils.sh
 setup_python_venv $WORKSPACE
