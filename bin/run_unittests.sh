@@ -1,7 +1,9 @@
 #!/bin/sh
 
+echo -e "\n${0}\n"
+
 WORKSPACE=`pwd`
-export GLIDEINWMS_SRC=$WORKSPACE/glideinwms
+#export GLIDEINWMS_SRC=$WORKSPACE/glideinwms
 
 source $GLIDEINWMS_SRC/build/jenkins/utils.sh
 

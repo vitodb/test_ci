@@ -1,5 +1,7 @@
 #!/bin/sh
 
+echo -e "\n${0}\n"
+
 process_branch() {
     local pylint_log=$1
     local pep8_log=$2
