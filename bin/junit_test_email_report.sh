@@ -16,7 +16,8 @@ junit_test_email_report() {
     echo "<tbody>"
     REDCOLOR="#ff0000"
     GREENCOLOR="#00ff00"
-    for f in $1/*.xml; do
+    for dir in $@; do
+        f=${dir}/*.xml
         TESTCLASS=$(echo $f | sed  "s/.*-\(.*\)-.*/\1/")
         #echo "cat //testsuite/testcase/@name" | xmllint --shell $f
         NTESTS=$(echo "cat //testsuite/@tests" | xmllint --shell $f | grep -o -E "[0-9]{,10}")
