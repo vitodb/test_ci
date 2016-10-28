@@ -15,7 +15,7 @@ function usage {
       --stage-name  Define the name of the test
       --testmask    Define the name of the testmask file
 EOF
-} 
+}
 
 function initialize
 {
@@ -27,7 +27,7 @@ function initialize
     #~~~~~~~~~~~~~~~ DEFAULT VALUES ~~~~~~~~~~~~~~~~
     EXECUTABLE_NAME=no_executable_defined
     NEVENTS=1
-    TESTMASK="testmask.txt"
+    #TESTMASK="testmask.txt"
     INPUT_FILE=""
     #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -38,11 +38,11 @@ function initialize
       x-h|x--help)   usage;                                                                         exit;;
       x--executable) EXECUTABLE_NAME="${2}";                                                        shift; shift;;
       x--nevents)    NEVENTS="${2}";                                                                shift; shift;;
-      x--stage)      STAGE="${2}";                                                                   shift; shift;;
+      x--stage)      STAGE="${2}";                                                                  shift; shift;;
       x--fhicl)      FHiCL_FILE="${2}";                                                             shift; shift;;
       x--input)      INPUT_FILE="${2}";                                                             shift; shift;;
       x--outputs)    OUTPUT_LIST="${2}"; OUTPUT_STREAM="${OUTPUT_LIST//,/ -o }";                    shift; shift;;
-      x--stage-name) STAGE_NAME="${2}";                                                              shift; shift;;
+      x--stage-name) STAGE_NAME="${2}";                                                             shift; shift;;
       x--testmask)   TESTMASK="${2}";                                                               shift; shift;;
       x)                                                                                            break;;
       x*)            echo "Unknown argument $1"; usage; exit 1;;
@@ -50,9 +50,15 @@ function initialize
     done
 
     #~~~~~~~~~~~~~~~~~~~~~PARSE THE TESTMASK FILE TO UNDERSTAND WHICH FUNCTION TO RUN ~~~~~~~~~~~~
-    check_data_production=$(sed -n '1p' ${TESTMASK} | cut -d ' ' -f ${STAGE})
-    check_compare_names=$(sed -n '2p' ${TESTMASK} | cut -d ' ' -f ${STAGE})
-    check_compare_size=$(sed -n '3p' ${TESTMASK} | cut -d ' ' -f ${STAGE})
+    if [ -n "${TESTMASK}" ];then
+        check_data_production=$(sed -n '1p' ${TESTMASK} | cut -d ' ' -f ${STAGE})
+        check_compare_names=$(sed -n '2p' ${TESTMASK} | cut -d ' ' -f ${STAGE})
+        check_compare_size=$(sed -n '3p' ${TESTMASK} | cut -d ' ' -f ${STAGE})
+    else
+        check_data_production=1
+        check_compare_names=0
+        check_compare_size=0
+    fi
 
     echo "Input file:  ${INPUT_FILE}"
     echo "Output files: ${OUTPUT_LIST}"
@@ -117,11 +123,11 @@ function generate_data_dump
 }
 
 function compare_products_names
-{       
+{
     TASKSTRING="compare_products_names for ${file_stream} output stream"
 
     if [[ "$1" -eq 1 ]]
-    then 
+    then
 
         echo -e "\nCompare products names for ${file_stream} output stream."
         #~~~~~~~~~~~~~~~~CHECK IF THERE'S A DIFFERENCE BEETWEEN THE TWO DUMP FILES IN THE FIRST FOUR COLUMNS~~~~~~~~~~~~~~
@@ -139,7 +145,7 @@ function compare_products_names
         fi
     else
         echo -e "\nCI MSG BEGIN\n Stage: ${STAGE_NAME}\n Task: ${TASKSTRING}\n skipped\nCI MSG END\n"
-        exitstatus $?   
+        exitstatus $?
     fi
 }
 
@@ -149,7 +155,7 @@ function compare_products_sizes
 
     if [[ "${1}" -eq 1 ]]
     then
-        
+
         echo -e "\nCompare products sizes for ${file_stream} output stream.\n"
         #~~~~~~~~~~~~~~~~CHECK IF THERE'S A DIFFERENCE BEETWEEN THE TWO DUMP FILES,IN ALL THE COLUMNS~~~~~~~~~~~~~~
         DIFF=$(diff  <(sed 's/\.//g ; /PROCESS NAME/,/^\s*$/!d ; s/PROCESS NAME.*$// ; /^\s*$/d' ${reference_file//.root/.dump}) <(sed 's/\.//g ; /PROCESS NAME/,/^\s*$/!d ; s/PROCESS NAME.*$// ; /^\s*$/d' ${current_file//.root/.dump}) )
