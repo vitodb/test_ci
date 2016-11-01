@@ -14,6 +14,7 @@ function usage {
       --outputs     Define a list of couple <output_stream>:<output_filename> using "," as separator
       --stage-name  Define the name of the test
       --testmask    Define the name of the testmask file
+      --check       Option needed to check for the new reference files
 EOF
 }
 
@@ -29,6 +30,7 @@ function initialize
     NEVENTS=1
     #TESTMASK="testmask.txt"
     INPUT_FILE=""
+    #CHECK_NEW_REFERENCE=false
     #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
     #~~~~~~~~~~~~~~~~~~~~~~GET VALUE FROM THE CI_TESTS.CFG ARGS SECTION~~~~~~~~~~~~~~~
@@ -44,6 +46,7 @@ function initialize
       x--outputs)    OUTPUT_LIST="${2}"; OUTPUT_STREAM="${OUTPUT_LIST//,/ -o }";                    shift; shift;;
       x--stage-name) STAGE_NAME="${2}";                                                             shift; shift;;
       x--testmask)   TESTMASK="${2}";                                                               shift; shift;;
+      #x--check)      CHECK_NEW_REFERENCE=true;                                                      shift;;
       x)                                                                                            break;;
       x*)            echo "Unknown argument $1"; usage; exit 1;;
       esac
@@ -202,7 +205,13 @@ for filename in ${OUTPUT_LIST}
 do
     file_stream=$(echo "${filename}" | cut -d ':' -f 1)
     current_file=$(echo "${filename}" | cut -d ':' -f 2)
-    reference_file="${current_file//Current/Reference}"
+
+    #if [ ${CHECK_NEW_REFERENCE} == true ];then
+        reference_file=`echo "${current_file%default*}default${build_timestamp}${current_file#*default}"`
+        reference_file="${reference_file//Current/Reference}"
+    #else
+    #    reference_file="${current_file//Current/Reference}"
+    #fi
 
     if [[ "${check_compare_names}" -eq 1  || "${check_compare_size}" -eq 1 ]]
     then
