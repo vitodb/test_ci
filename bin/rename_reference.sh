@@ -12,7 +12,7 @@ for file in `ifdh ls /pnfs/dune/scratch/users/mfattoru/temporary 2>/dev/null | g
     echo "###THIS IS THE STATUS OF THE FILE: $temp_status"
     if [ -n "$temp_status" ];then #the file exist
         echo "The file ${renamed_filename} already existed.deleting it"
-        ifdh rm ${renamed_filename}
+        ifdh rm ${renamed_filename} force
     fi
     echo -e "renaming the file \n \n"
     ifdh rename ${filename} ${renamed_filename}
