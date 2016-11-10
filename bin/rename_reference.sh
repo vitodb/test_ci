@@ -4,7 +4,6 @@ get_reference_path(){
     for path in `env | grep "_DIR" | sed -e "s/.*=//g"`;do
         fname="${path}/test/ci_tests.cfg"
         if [ -f "${fname}" ];then
-            echo "configuration file found in the following folder: ${fname}"
             echo `cat $fname | grep "^INPUTFILEDIR_EXPERIMENT" | sed -e "s/.*=//g"`
             break
         fi
