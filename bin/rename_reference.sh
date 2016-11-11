@@ -36,5 +36,4 @@ rename_reference_files(){
 }
 
 echo "############### Renaming Updated Reference Files ###############"
-#rename_reference_files
-get_reference_path
+rename_reference_files
