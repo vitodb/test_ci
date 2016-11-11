@@ -13,27 +13,30 @@ get_reference_path(){
 
 rename_reference_files(){
     reference_path=`get_reference_path`
-
     echo "Reference folder for the update process: $reference_path"
-    #for file in `ifdh ls /pnfs/dune/scratch/users/mfattoru/temporary 2>/dev/null | grep -E "[0-9]{8}"`; do #the timestamp should be at least 8 digit long,AAAAMMDD
+
     for file in `ifdh ls ${reference_path}/temporary 2>/dev/null | grep "${build_timestamp}"`; do
         echo "current file: $file"
-        filename=${file}
-        #renamed_filename=`echo ${file}| sed 's/[0-9]\{8,14\}//g'`
-        renamed_filename=`echo ${file}| sed "s/${build_timestamp}//g"`
-        echo "renamed file: ${renamed_filename}"
-        temp_status=`ifdh ls ${renamed_filename} 2>/dev/null`
-        echo "###THIS IS THE STATUS OF THE FILE: $temp_status"
-        if [ -n "$temp_status" ];then #the file exist
-            echo "The file ${renamed_filename} already existed.deleting it"
-            echo ifdh rm ${renamed_filename}
+        filename="${file}"
+        renamed_filename=`echo "${file}"| sed "s/${build_timestamp}//g"`
+        echo "The file will be renamed in: ${renamed_filename}"
+        temp_status=`ifdh ls "${renamed_filename}" 2>/dev/null`
+        backup_status=`ifdh ls "${renamed_filename}.bak" 2>/dev/null`
+        if [ -n "$backup_status" ];then #the backup file already exist
+            echo "The backup file ${renamed_filename}.bak already exist.deleting it"
+            ifdh rm "${renamed_filename}.bak"
         fi
-        echo -e "renaming the file\n"
-        echo ifdh rename ${filename} ${renamed_filename}
+        if [ -n "$temp_status" ];then #the reference file already exist
+            echo "Converting the current reference file to backup file"
+            ifdh rename "${renamed_filename}" "${renamed_filename}.bak"
+        fi
+        echo -e "Updating the last produced reference file to be the one used as default\n"
+        ifdh rename "${filename}" "${renamed_filename}"
 
     done
     echo "all the files have been renamed"
 }
 
-echo "############### Renaming Updated Reference Files ###############"
+echo -e "############### Renaming Updated Reference Files ###############\n\n"
 rename_reference_files
+echo -e "\n\n################################################################"
