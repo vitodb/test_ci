@@ -1,17 +1,19 @@
 #!/usr/bin/env bash
 
+
 get_reference_path(){
     for path in `env | grep "_DIR" | sed -e "s/.*=//g"`;do
         fname="${path}/test/ci_tests.cfg"
         if [ -f "${fname}" ];then
-            echo `cat $fname | grep "^INPUTFILEDIR_EXPERIMENT" | sed -e "s/.*=//g"`
-            break
+            final_path=${fname}
         fi
     done
+    echo `cat $final_path | grep "^INPUTFILEDIR_EXPERIMENT" | sed -e "s/.*=//g"`
 }
 
 rename_reference_files(){
     reference_path=`get_reference_path`
+
     echo "Reference folder for the update process: $reference_path"
     #for file in `ifdh ls /pnfs/dune/scratch/users/mfattoru/temporary 2>/dev/null | grep -E "[0-9]{8}"`; do #the timestamp should be at least 8 digit long,AAAAMMDD
     for file in `ifdh ls ${reference_path}/temporary 2>/dev/null | grep "${build_timestamp}"`; do
@@ -34,4 +36,5 @@ rename_reference_files(){
 }
 
 echo "############### Renaming Updated Reference Files ###############"
-rename_reference_files
+#rename_reference_files
+get_reference_path
