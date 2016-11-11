@@ -11,7 +11,7 @@ get_reference_path(){
 }
 
 rename_reference_files(){
-    reference_path=get_reference_path
+    reference_path=`get_reference_path`
     echo "Reference folder for the update process: $reference_path"
     #for file in `ifdh ls /pnfs/dune/scratch/users/mfattoru/temporary 2>/dev/null | grep -E "[0-9]{8}"`; do #the timestamp should be at least 8 digit long,AAAAMMDD
     for file in `ifdh ls ${reference_path}/temporary 2>/dev/null | grep "${build_timestamp}"`; do
@@ -24,10 +24,10 @@ rename_reference_files(){
         echo "###THIS IS THE STATUS OF THE FILE: $temp_status"
         if [ -n "$temp_status" ];then #the file exist
             echo "The file ${renamed_filename} already existed.deleting it"
-            ifdh rm ${renamed_filename}
+            echo ifdh rm ${renamed_filename}
         fi
         echo -e "renaming the file\n"
-        ifdh rename ${filename} ${renamed_filename}
+        echo ifdh rename ${filename} ${renamed_filename}
 
     done
     echo "all the files have been renamed"
