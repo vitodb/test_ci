@@ -25,10 +25,14 @@ rename_reference_files(){
         if [ -n "$backup_status" ] && [ -n "$temp_status" ] ;then #the backup file already exist,and we can create a new one,because a reference file is present
             echo "The backup file ${renamed_filename}.bak already exist.deleting it"
             ifdh rm "${renamed_filename}.bak"
+        elif [ -n "$backup_status" ];then
+            echo "No previous backup file found."
         fi
         if [ -n "$temp_status" ];then #the reference file already exist
             echo "Converting the current reference file to backup file"
             ifdh rename "${renamed_filename}" "${renamed_filename}.bak"
+        else
+            echo "No previous reference file found"
         fi
         echo -e "Updating the last produced reference file to be the one used as default\n"
         ifdh rename "${filename}" "${renamed_filename}"
