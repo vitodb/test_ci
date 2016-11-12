@@ -22,7 +22,7 @@ rename_reference_files(){
         echo "The file will be renamed in: ${renamed_filename}"
         temp_status=`ifdh ls "${renamed_filename}" 2>/dev/null`
         backup_status=`ifdh ls "${renamed_filename}.bak" 2>/dev/null`
-        if [ -n "$backup_status" ];then #the backup file already exist
+        if [ -n "$backup_status" ] && [ -n "$temp_status" ] ;then #the backup file already exist,and we can create a new one,because a reference file is present
             echo "The backup file ${renamed_filename}.bak already exist.deleting it"
             ifdh rm "${renamed_filename}.bak"
         fi
