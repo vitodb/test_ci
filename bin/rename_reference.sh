@@ -12,6 +12,7 @@ get_reference_path(){
 }
 
 rename_reference_files(){
+    echo -e "############### Renaming Updated Reference Files ###############\n\n"
     reference_path=`get_reference_path`
     echo "Reference folder for the update process: $reference_path"
 
@@ -38,9 +39,8 @@ rename_reference_files(){
         ifdh rename "${filename}" "${renamed_filename}"
 
     done
-    echo "all the files have been renamed"
+    echo "All the files have been renamed"
+    echo -e "\n\n################################################################"
 }
 
-echo -e "############### Renaming Updated Reference Files ###############\n\n"
 rename_reference_files
-echo -e "\n\n################################################################"
