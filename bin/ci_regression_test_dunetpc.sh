@@ -207,10 +207,10 @@ do
     current_file=$(echo "${filename}" | cut -d ':' -f 2)
 
     #if [ ${CHECK_NEW_REFERENCE} == true ];then
-        reference_file=`echo "${current_file%default*}default${build_timestamp}${current_file#*default}"`
-        reference_file="${reference_file//Current/Reference}"
+        #reference_file=`echo "${current_file%default*}default${build_timestamp}${current_file#*default}"`
+        #reference_file="${reference_file//Current/Reference}"
     #else
-    #    reference_file="${current_file//Current/Reference}"
+        reference_file="${current_file//Current/Reference}"
     #fi
 
     if [[ "${check_compare_names}" -eq 1  || "${check_compare_size}" -eq 1 ]]
