@@ -218,7 +218,7 @@ do
     #if [ ${CHECK_NEW_REFERENCE} == true ];then
         #reference_file=$(echo "${current_file%`echo ${build_platform}`*}${build_platform}${build_identifier}${current_file#*`echo ${build_platform}`}")
         #reference_file=$(echo "${current_file%default*}default${build_platform}${build_identifier}${current_file#*default}")
-        reference_file=$(echo "${current_file%default*}default${build_identifier}${current_file#*default}")
+        reference_file=$(echo "${current_file%`echo ${build_platform}`*}${build_platform}${build_identifier}${current_file#*`echo ${build_platform}`}")
         #reference_file="${reference_file//Current/Reference}"
         reference_file="${reference_file//Current/Reference}"
     #else
