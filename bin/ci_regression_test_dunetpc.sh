@@ -57,6 +57,8 @@ function initialize
         OUTPUT_STREAM="${stream_name%%\.*}${build_platform}.${stream_name#*\.},"
     done
     OUTPUT_STREAM="${OUTPUT_STREAM%?}" #remove the additional comma caused by the loop
+
+    OUTPUT_LIST=${OUTPUT_STREAM}
     OUTPUT_STREAM="${OUTPUT_STREAM//,/ -o }"
 
     #~~~~~~~~~~~~~~~~~~~~~PARSE THE TESTMASK FILE TO UNDERSTAND WHICH FUNCTION TO RUN ~~~~~~~~~~~~
@@ -215,7 +217,8 @@ do
 
     #if [ ${CHECK_NEW_REFERENCE} == true ];then
         #reference_file=$(echo "${current_file%`echo ${build_platform}`*}${build_platform}${build_identifier}${current_file#*`echo ${build_platform}`}")
-        reference_file=$(echo "${current_file%default*}default${build_platform}${build_identifier}${current_file#*default}")
+        #reference_file=$(echo "${current_file%default*}default${build_platform}${build_identifier}${current_file#*default}")
+        reference_file=$(echo "${current_file%default*}default${build_platform}${current_file#*default}")
         reference_file="${reference_file//Current/Reference}"
     #else
         #reference_file="${current_file//Current/Reference}"
