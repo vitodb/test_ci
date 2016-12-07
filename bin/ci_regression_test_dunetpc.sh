@@ -206,10 +206,8 @@ initialize $@
 
 data_production "${check_data_production}"
 
-IFS=$','
-
 #~~~~~~~~~~~~~~~~PROCESS ALL THE FILES DECLARED INTO THE OUTPUT LIST~~~~~~~~~~~~~~~~~
-for filename in ${OUTPUT_LIST}
+for filename in ${OUTPUT_LIST//,/ }
 do
     file_stream=$(echo "${filename}" | cut -d ':' -f 1)
     current_file=$(echo "${filename}" | cut -d ':' -f 2)
@@ -235,4 +233,3 @@ do
 
     compare_products_sizes "${check_compare_size}"
 done
-unset IFS
