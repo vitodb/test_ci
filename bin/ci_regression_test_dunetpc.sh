@@ -43,23 +43,22 @@ function initialize
       x--stage)      STAGE="${2}";                                                                  shift; shift;;
       x--fhicl)      FHiCL_FILE="${2}";                                                             shift; shift;;
       x--input)      INPUT_FILE="${2}";                                                             shift; shift;;
-      x--outputs)    OUTPUT_LIST="${2}";                                                            shift; shift;;
-      #x--outputs)    OUTPUT_LIST="${2}"; OUTPUT_STREAM="${OUTPUT_LIST//,/ -o }";                    shift; shift;;
+      #x--outputs)    OUTPUT_LIST="${2}";                                                            shift; shift;;
+      x--outputs)    OUTPUT_LIST="${2}"; OUTPUT_STREAM="${OUTPUT_LIST//,/ -o }";                    shift; shift;;
       x--stage-name) STAGE_NAME="${2}";                                                             shift; shift;;
       x--testmask)   TESTMASK="${2}";                                                               shift; shift;;
-      #x--check)      CHECK_NEW_REFERENCE=true;                                                      shift;;
       x)                                                                                            break;;
       x*)            echo "Unknown argument $1"; usage; exit 1;;
       esac
     done
 
-    for stream_name in ${OUTPUT_LIST//,/ }; do
-        OUTPUT_STREAM="${stream_name%%\.*}${build_platform}.${stream_name#*\.},"
-    done
-    OUTPUT_STREAM="${OUTPUT_STREAM%?}" #remove the additional comma caused by the loop
+    #for stream_name in ${OUTPUT_LIST//,/ }; do
+    #    OUTPUT_STREAM="${stream_name%%\.*}${build_platform}.${stream_name#*\.},"
+    #done
+    #OUTPUT_STREAM="${OUTPUT_STREAM%?}" #remove the additional comma caused by the loop
 
-    OUTPUT_LIST=${OUTPUT_STREAM}
-    OUTPUT_STREAM="${OUTPUT_STREAM//,/ -o }"
+    #OUTPUT_LIST=${OUTPUT_STREAM}
+    #OUTPUT_STREAM="${OUTPUT_STREAM//,/ -o }"
 
     #~~~~~~~~~~~~~~~~~~~~~PARSE THE TESTMASK FILE TO UNDERSTAND WHICH FUNCTION TO RUN ~~~~~~~~~~~~
     if [ -n "${TESTMASK}" ];then
