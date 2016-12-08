@@ -19,8 +19,8 @@ EXP_STAGE=${1}
 
 #report_test_result "$report_phase" "$test_suite[not used]" "$test_name" "$statistic" "$value.0"
 
-report_test_result "$report_phase" "" "execute_${EXP_STAGE}_${PROCESS}" "status" "-2.0"
-report_test_result "$report_phase" "" "execute_${EXP_STAGE}_${PROCESS}" "status" "-1.0"
+report_test_result "$report_phase" "" "${EXP_STAGE}_stage" "status" "-2.0"
+report_test_result "$report_phase" "" "${EXP_STAGE}_stage" "status" "-1.0"
 
 
 
@@ -81,7 +81,7 @@ standard() {
 
     ls -lh
 
-    report_test_result "$report_phase" "" "execute_${EXP_STAGE}_${PROCESS}" "status" "${report_exitcode}.0"
+    report_test_result "$report_phase" "" "${EXP_STAGE}_stage" "status" "${report_exitcode}.0"
 
     exit ${report_exitcode}
 }
@@ -118,7 +118,7 @@ merge() {
         bf=`basename $f`
         hist_desc="hits ${bf//.gif/}"
         hist_name="${bf//.gif/}"
-        report_img "$report_phase" "" "execute_${EXP_STAGE}_${PROCESS}" "$hist_name" "$f" "$hist_desc"
+        report_img "$report_phase" "" "${EXP_STAGE}_stage" "$hist_name" "$f" "$hist_desc"
     done
 
     echo CMD: ifdh cp -D $(eval echo \$output_filename_${EXP_STAGE}) calorimetry_validation.root calorimetry ${CI_DCACHEDIR}/${EXP_STAGE}
@@ -126,7 +126,7 @@ merge() {
     ifdh mkdir ${CI_DCACHEDIR}/${EXP_STAGE}/calorimetry
     ifdh cp -D  calorimetry/* ${CI_DCACHEDIR}/${EXP_STAGE}/calorimetry
 
-    report_test_result "$report_phase" "" "execute_${EXP_STAGE}_${PROCESS}" "status" "${report_exitcode}.0"
+    report_test_result "$report_phase" "" "${EXP_STAGE}_stage" "status" "${report_exitcode}.0"
 
     exit ${report_exitcode}
 
