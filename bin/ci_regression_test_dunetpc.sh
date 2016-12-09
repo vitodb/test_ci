@@ -28,9 +28,7 @@ function initialize
     #~~~~~~~~~~~~~~~ DEFAULT VALUES ~~~~~~~~~~~~~~~~
     EXECUTABLE_NAME=no_executable_defined
     NEVENTS=1
-    #TESTMASK="testmask.txt"
     INPUT_FILE=""
-    #CHECK_NEW_REFERENCE=false
     #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
     #~~~~~~~~~~~~~~~~~~~~~~GET VALUE FROM THE CI_TESTS.CFG ARGS SECTION~~~~~~~~~~~~~~~
@@ -43,7 +41,6 @@ function initialize
       x--stage)      STAGE="${2}";                                                                  shift; shift;;
       x--fhicl)      FHiCL_FILE="${2}";                                                             shift; shift;;
       x--input)      INPUT_FILE="${2}";                                                             shift; shift;;
-      #x--outputs)    OUTPUT_LIST="${2}";                                                            shift; shift;;
       x--outputs)    OUTPUT_LIST="${2}"; OUTPUT_STREAM="${OUTPUT_LIST//,/ -o }";                    shift; shift;;
       x--stage-name) STAGE_NAME="${2}";                                                             shift; shift;;
       x--testmask)   TESTMASK="${2}";                                                               shift; shift;;
@@ -51,14 +48,6 @@ function initialize
       x*)            echo "Unknown argument $1"; usage; exit 1;;
       esac
     done
-
-    #for stream_name in ${OUTPUT_LIST//,/ }; do
-    #    OUTPUT_STREAM="${stream_name%%\.*}${build_platform}.${stream_name#*\.},"
-    #done
-    #OUTPUT_STREAM="${OUTPUT_STREAM%?}" #remove the additional comma caused by the loop
-
-    #OUTPUT_LIST=${OUTPUT_STREAM}
-    #OUTPUT_STREAM="${OUTPUT_STREAM//,/ -o }"
 
     #~~~~~~~~~~~~~~~~~~~~~PARSE THE TESTMASK FILE TO UNDERSTAND WHICH FUNCTION TO RUN ~~~~~~~~~~~~
     if [ -n "${TESTMASK}" ];then
@@ -212,15 +201,8 @@ do
     file_stream=$(echo "${filename}" | cut -d ':' -f 1)
     current_file=$(echo "${filename}" | cut -d ':' -f 2)
 
-    #if [ ${CHECK_NEW_REFERENCE} == true ];then
-        #reference_file=$(echo "${current_file%`echo ${build_platform}`*}${build_platform}${build_identifier}${current_file#*`echo ${build_platform}`}")
-        #reference_file=$(echo "${current_file%default*}default${build_platform}${build_identifier}${current_file#*default}")
-        reference_file=$(echo "${current_file%`echo ${build_platform}`*}${build_platform}${build_identifier}${current_file#*`echo ${build_platform}`}")
-        #reference_file="${reference_file//Current/Reference}"
-        reference_file="${reference_file//Current/Reference}"
-    #else
-        #reference_file="${current_file//Current/Reference}"
-    #fi
+    reference_file=$(echo "${current_file%`echo ${build_platform}`*}${build_platform}${build_identifier}${current_file#*`echo ${build_platform}`}")
+    reference_file="${reference_file//Current/Reference}"
 
     if [[ "${check_compare_names}" -eq 1  || "${check_compare_size}" -eq 1 ]]
     then
