@@ -4,7 +4,7 @@
 function usage {
       cat <<EOF
    usage: $0 [options]
-      trigger build of ${proj_PREFIX}_ci continuous intergration build.
+      running CI tests for ${proj_PREFIX}_ci.
    options:
       --executable  Define the executable to run
       --nevents     Define the number of events to process
@@ -14,7 +14,7 @@ function usage {
       --outputs     Define a list of couple <output_stream>:<output_filename> using "," as separator
       --stage-name  Define the name of the test
       --testmask    Define the name of the testmask file
-      --check       Option needed to check for the new reference files
+      --update-ref-files Flag to activate the "Update Reference Files" mode
 EOF
 }
 
@@ -23,42 +23,45 @@ function initialize
     TASKSTRING="initialize"
     trap 'LASTERR=$?; echo -e "\nCI MSG BEGIN\n `basename $0`: error at line ${LINENO}\n Stage: ${STAGE_NAME}\n Task: ${TASKSTRING}\n exit status: ${LASTERR}\nCI MSG END\n"; exit ${LASTERR}' ERR
 
+    echo "running CI tests for ${proj_PREFIX}_ci."
+    echo
     echo "initialize $@"
 
     #~~~~~~~~~~~~~~~ DEFAULT VALUES ~~~~~~~~~~~~~~~~
     EXECUTABLE_NAME=no_executable_defined
     NEVENTS=1
-    #TESTMASK="testmask.txt"
     INPUT_FILE=""
-    #CHECK_NEW_REFERENCE=false
+    UPDATE_REF_FILE_ON=0
     #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
     #~~~~~~~~~~~~~~~~~~~~~~GET VALUE FROM THE CI_TESTS.CFG ARGS SECTION~~~~~~~~~~~~~~~
     while :
     do
       case "x$1" in
-      x-h|x--help)   usage;                                                                         exit;;
-      x--executable) EXECUTABLE_NAME="${2}";                                                        shift; shift;;
-      x--nevents)    NEVENTS="${2}";                                                                shift; shift;;
-      x--stage)      STAGE="${2}";                                                                  shift; shift;;
-      x--fhicl)      FHiCL_FILE="${2}";                                                             shift; shift;;
-      x--input)      INPUT_FILE="${2}";                                                             shift; shift;;
-      #x--outputs)    OUTPUT_LIST="${2}";                                                            shift; shift;;
-      x--outputs)    OUTPUT_LIST="${2}"; OUTPUT_STREAM="${OUTPUT_LIST//,/ -o }";                    shift; shift;;
-      x--stage-name) STAGE_NAME="${2}";                                                             shift; shift;;
-      x--testmask)   TESTMASK="${2}";                                                               shift; shift;;
-      x)                                                                                            break;;
+      x-h|x--help)         usage;                                                       exit;;
+      x--executable)       EXECUTABLE_NAME="${2}";                                      shift; shift;;
+      x--nevents)          NEVENTS="${2}";                                              shift; shift;;
+      x--stage)            STAGE="${2}";                                                shift; shift;;
+      x--fhicl)            FHiCL_FILE="${2}";                                           shift; shift;;
+      x--input)            INPUT_FILE="${2}";                                           shift; shift;;
+      x--outputs)          OUTPUT_LIST="${2}"; OUTPUT_STREAM="${OUTPUT_LIST//,/ -o }";  shift; shift;;
+      x--stage-name)       STAGE_NAME="${2}";                                           shift; shift;;
+      x--testmask)         TESTMASK="${2}";                                             shift; shift;;
+      x--update-ref-files) UPDATE_REF_FILE_ON=1;                                        shift;;
+      x)                                                                                break;;
       x*)            echo "Unknown argument $1"; usage; exit 1;;
       esac
     done
 
-    #for stream_name in ${OUTPUT_LIST//,/ }; do
-    #    OUTPUT_STREAM="${stream_name%%\.*}${build_platform}.${stream_name#*\.},"
-    #done
-    #OUTPUT_STREAM="${OUTPUT_STREAM%?}" #remove the additional comma caused by the loop
-
-    #OUTPUT_LIST=${OUTPUT_STREAM}
-    #OUTPUT_STREAM="${OUTPUT_STREAM//,/ -o }"
+    if [ ${UPDATE_REF_FILE_ON} -gt 0 ]; then
+        echo -e "\n***************************************************"
+        echo "This CI build is running to update reference files:"
+        echo "- data product comparison is disabled"
+        echo "- number of events is set to 1"
+        echo -e "***************************************************\n"
+        TESTMASK=""
+        NEVENTS=1
+    fi
 
     #~~~~~~~~~~~~~~~~~~~~~PARSE THE TESTMASK FILE TO UNDERSTAND WHICH FUNCTION TO RUN ~~~~~~~~~~~~
     if [ -n "${TESTMASK}" ];then
