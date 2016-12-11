@@ -98,9 +98,9 @@ merge() {
     echo CMD: ifdh findMatchingFiles ${CI_DCACHEDIR}/$(eval echo \$input_from_stage_${EXP_STAGE}) ${new_input_filename}
     ifdh findMatchingFiles ${CI_DCACHEDIR}/$(eval echo \$input_from_stage_${EXP_STAGE}) ${new_input_filename}
 
-    echo CMD: hadd $(eval echo \$output_filename_${EXP_STAGE}) $(for source_file in $( ifdh findMatchingFiles ${CI_DCACHEDIR}/$(eval echo \$input_from_stage_${EXP_STAGE}) ${new_input_filename} 2> /dev/null | awk '{print $1}' ) ; do echo root://fndca1/${source_file}; done)
+    echo CMD: hadd $(eval echo \$output_filename_${EXP_STAGE}) $(for source_file in $( ifdh findMatchingFiles ${CI_DCACHEDIR}/$(eval echo \$input_from_stage_${EXP_STAGE}) ${new_input_filename} 2> /dev/null | awk '{print $1}' ) ; do echo root://fndca1.fnal.gov:1094/${source_file}; done)
 
-    hadd $(eval echo \$output_filename_${EXP_STAGE}) $(for source_file in $( ifdh findMatchingFiles ${CI_DCACHEDIR}/$(eval echo \$input_from_stage_${EXP_STAGE}) ${new_input_filename} 2> /dev/null | awk '{print $1}' ) ; do echo root://fndca1/${source_file}; done)
+    hadd $(eval echo \$output_filename_${EXP_STAGE}) $(for source_file in $( ifdh findMatchingFiles ${CI_DCACHEDIR}/$(eval echo \$input_from_stage_${EXP_STAGE}) ${new_input_filename} 2> /dev/null | awk '{print $1}' ) ; do echo root://fndca1.fnal.gov:1094/${source_file//\/pnfs/pnfs\/fnal.gov\/usr}; done)
 
     report_exitcode=$?
 
