@@ -6,6 +6,8 @@ source ${GENERIC_CI_DIR}/bin/reporter_functions.sh
 
 echo -e "\n\n#######\n\n"
 
+export IFDH_CP_MAXRETRIES=1
+
 env | sort
 
 echo -e "\n\n#######\n\n"
@@ -95,12 +97,12 @@ merge() {
 
     eval echo \$input_filename_${EXP_STAGE}
     echo new_input_filename: $new_input_filename
-    echo CMD: ifdh findMatchingFiles ${CI_DCACHEDIR}/$(eval echo \$input_from_stage_${EXP_STAGE}) ${new_input_filename}
-    ifdh findMatchingFiles ${CI_DCACHEDIR}/$(eval echo \$input_from_stage_${EXP_STAGE}) ${new_input_filename}
+    echo CMD: ifdh findMatchingFiles ${CI_DCACHEDIR}/$(eval echo \$input_from_stage_${EXP_STAGE})/ ${new_input_filename}
+    ifdh findMatchingFiles ${CI_DCACHEDIR}/$(eval echo \$input_from_stage_${EXP_STAGE})/ ${new_input_filename}
 
-    echo CMD: hadd $(eval echo \$output_filename_${EXP_STAGE}) $(for source_file in $( ifdh findMatchingFiles ${CI_DCACHEDIR}/$(eval echo \$input_from_stage_${EXP_STAGE}) ${new_input_filename} 2> /dev/null | awk '{print $1}' ) ; do echo root://fndca1.fnal.gov:1094/${source_file}; done)
+    echo CMD: hadd $(eval echo \$output_filename_${EXP_STAGE}) $(for source_file in $( ifdh findMatchingFiles ${CI_DCACHEDIR}/$(eval echo \$input_from_stage_${EXP_STAGE})/ ${new_input_filename} 2> /dev/null | awk '{print $1}' ) ; do echo root://fndca1.fnal.gov:1094/${source_file}; done)
 
-    hadd $(eval echo \$output_filename_${EXP_STAGE}) $(for source_file in $( ifdh findMatchingFiles ${CI_DCACHEDIR}/$(eval echo \$input_from_stage_${EXP_STAGE}) ${new_input_filename} 2> /dev/null | awk '{print $1}' ) ; do echo root://fndca1.fnal.gov:1094/${source_file//\/pnfs/pnfs\/fnal.gov\/usr}; done)
+    hadd $(eval echo \$output_filename_${EXP_STAGE}) $(for source_file in $( ifdh findMatchingFiles ${CI_DCACHEDIR}/$(eval echo \$input_from_stage_${EXP_STAGE})/ ${new_input_filename} 2> /dev/null | awk '{print $1}' ) ; do echo root://fndca1.fnal.gov:1094/${source_file//\/pnfs/pnfs\/fnal.gov\/usr}; done)
 
     report_exitcode=$?
 
@@ -121,10 +123,11 @@ merge() {
         report_img "$report_phase" "" "${EXP_STAGE}_stage" "$hist_name" "$f" "$hist_desc"
     done
 
-    echo CMD: ifdh cp -D $(eval echo \$output_filename_${EXP_STAGE}) calorimetry_validation.root calorimetry ${CI_DCACHEDIR}/${EXP_STAGE}
+    echo CMD: ifdh cp -D $(eval echo \$output_filename_${EXP_STAGE}) calorimetry_validation.root ${CI_DCACHEDIR}/${EXP_STAGE}
     ifdh cp -D $(eval echo \$output_filename_${EXP_STAGE}) calorimetry_validation.root  ${CI_DCACHEDIR}/${EXP_STAGE}
     ifdh mkdir ${CI_DCACHEDIR}/${EXP_STAGE}/calorimetry
-    ifdh cp -D  calorimetry/* ${CI_DCACHEDIR}/${EXP_STAGE}/calorimetry
+    echo CMD: ifdh cp -D calorimetry/\* ${CI_DCACHEDIR}/${EXP_STAGE}/calorimetry
+    ifdh cp -D calorimetry/* ${CI_DCACHEDIR}/${EXP_STAGE}/calorimetry
 
     report_test_result "$report_phase" "" "${EXP_STAGE}_stage" "status" "${report_exitcode}.0"
 
