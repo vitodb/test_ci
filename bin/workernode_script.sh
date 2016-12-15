@@ -21,8 +21,8 @@ EXP_STAGE=${1}
 
 #report_test_result "$report_phase" "$test_suite[not used]" "$test_name" "$statistic" "$value.0"
 
-report_test_result "$report_phase" "" "${EXP_STAGE}_stage" "status" "-2.0"
-report_test_result "$report_phase" "" "${EXP_STAGE}_stage" "status" "-1.0"
+### report_test_result "$report_phase" "" "${EXP_STAGE}_stage" "status" "-2.0"
+### report_test_result "$report_phase" "" "${EXP_STAGE}_stage" "status" "-1.0"
 
 
 
@@ -83,7 +83,7 @@ standard() {
 
     ls -lh
 
-    report_test_result "$report_phase" "" "${EXP_STAGE}_stage" "status" "${report_exitcode}.0"
+    ### report_test_result "$report_phase" "" "${EXP_STAGE}_stage" "status" "${report_exitcode}.0"
 
     exit ${report_exitcode}
 }
@@ -129,7 +129,7 @@ merge() {
     echo CMD: ifdh cp -D calorimetry/\* ${CI_DCACHEDIR}/${EXP_STAGE}/calorimetry
     ifdh cp -D calorimetry/* ${CI_DCACHEDIR}/${EXP_STAGE}/calorimetry
 
-    report_test_result "$report_phase" "" "${EXP_STAGE}_stage" "status" "${report_exitcode}.0"
+    ### report_test_result "$report_phase" "" "${EXP_STAGE}_stage" "status" "${report_exitcode}.0"
 
     exit ${report_exitcode}
 
