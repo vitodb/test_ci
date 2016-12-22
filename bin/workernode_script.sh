@@ -55,7 +55,7 @@ standard() {
     echo "Copy input file (if any)..."
     eval echo \$input_filename_${EXP_STAGE}
     new_input_filename=$(eval echo \$input_filename_${EXP_STAGE})
-    new_input_filename=${new_input_filename//.root/_${PROCESS}.root}
+    new_input_filename=${new_input_filename//.root/_${CI_PROCESS}.root}
     [ $(eval echo $new_input_filename) ] &&
         (echo CMD: ifdh cp ${CI_DCACHEDIR}/$(eval echo \$input_from_stage_${EXP_STAGE})/$new_input_filename $new_input_filename
         ifdh cp ${CI_DCACHEDIR}/$(eval echo \$input_from_stage_${EXP_STAGE})/$new_input_filename $new_input_filename) ||
@@ -72,7 +72,7 @@ standard() {
 
     echo "Copy output file..."
     new_output_filename=$(eval echo \$output_to_transfer_${EXP_STAGE})
-    new_output_filename=${new_output_filename//.root/_${PROCESS}.root}
+    new_output_filename=${new_output_filename//.root/_${CI_PROCESS}.root}
     echo CMD: mv -v $(eval echo \$output_to_transfer_${EXP_STAGE}) $new_output_filename
     mv -v $(eval echo \$output_to_transfer_${EXP_STAGE}) $new_output_filename
     ls -lh
@@ -136,7 +136,17 @@ merge() {
 }
 
 
-case "x$1" in
+while :
+do
+    case "x$1" in
+        x--ci-jodid)     CI_PROCESS==$2;                                         shift; shift;;
+        x--stage)        EXP_STAGE=$2;                                           shift; shift;;
+        x)               break;;
+        x*)              echo "Unknown argument $1"; exit 1;;
+    esac
+done
+
+case "x${EXP_STAGE}" in
     xmerge) merge ;;
     x)      break ;;
     x*)     standard ;;
