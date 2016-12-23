@@ -139,7 +139,7 @@ merge() {
 while :
 do
     case "x$1" in
-        x--ci-jobid)     CI_PROCESS==$2;                                         shift; shift;;
+        x--ci-jobid)     CI_PROCESS=$2;                                         shift; shift;;
         x--stage)        EXP_STAGE=$2;                                           shift; shift;;
         x)               break;;
         x*)              echo "Unknown argument $1"; exit 1;;
