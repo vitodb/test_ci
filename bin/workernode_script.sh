@@ -3,12 +3,6 @@
 
 echo "$0"
 
-env | sort
-
-source ${CONDOR_DIR_INPUT}/setup_workernode.sh
-#source ${_CONDOR_JOB_IWD}/generic_ci/bin/reporter_functions.sh
-source ${GENERIC_CI_DIR}/bin/reporter_functions.sh
-
 echo -e "\n\n#######\n\n"
 
 export IFDH_CP_MAXRETRIES=1
@@ -21,6 +15,8 @@ pwd
 ls -lh
 
 echo -e "\n\n#######\n\n"
+
+type traperror
 
 EXP_STAGE=${1}
 
