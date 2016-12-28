@@ -1,5 +1,10 @@
 #!/bin/bash
 
+
+echo "$0"
+
+env | sort
+
 source ${CONDOR_DIR_INPUT}/setup_workernode.sh
 #source ${_CONDOR_JOB_IWD}/generic_ci/bin/reporter_functions.sh
 source ${GENERIC_CI_DIR}/bin/reporter_functions.sh
