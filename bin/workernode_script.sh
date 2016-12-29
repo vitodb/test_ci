@@ -3,8 +3,6 @@
 
 echo "$0"
 
-source ${GENERIC_CI_DIR}/bin/reporter_functions.sh
-
 echo -e "\n\n#######\n\n"
 
 export IFDH_CP_MAXRETRIES=1
