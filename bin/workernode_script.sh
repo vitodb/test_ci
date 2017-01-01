@@ -17,6 +17,7 @@ ls -lh
 echo -e "\n\n#######\n\n"
 
 type traperror
+trap
 
 EXP_STAGE=${1}
 
