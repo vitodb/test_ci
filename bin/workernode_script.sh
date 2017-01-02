@@ -19,6 +19,10 @@ echo -e "\n\n#######\n\n"
 type traperror
 trap
 
+trap 'traperror $? $LINENO $BASH_LINENO "$BASH_COMMAND" $(printf "::%s" ${FUNCNAME[@]}) $ERRORFATAL' ERR
+trap
+
+
 EXP_STAGE=${1}
 
 #report_test_result "$report_phase" "$test_suite[not used]" "$test_name" "$statistic" "$value.0"
