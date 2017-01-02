@@ -58,18 +58,23 @@ standard() {
     eval echo \$input_filename_${EXP_STAGE}
     new_input_filename=$(eval echo \$input_filename_${EXP_STAGE})
     new_input_filename=${new_input_filename//.root/_${CI_PROCESS}.root}
-    [ $(eval echo $new_input_filename) ] &&
+
+    if [ $(eval echo $new_input_filename) ]; then
         (echo CMD: ifdh cp ${CI_DCACHEDIR}/$(eval echo \$input_from_stage_${EXP_STAGE})/$new_input_filename $new_input_filename
-        ifdh cp ${CI_DCACHEDIR}/$(eval echo \$input_from_stage_${EXP_STAGE})/$new_input_filename $new_input_filename) ||
+        ifdh cp ${CI_DCACHEDIR}/$(eval echo \$input_from_stage_${EXP_STAGE})/$new_input_filename $new_input_filename)
+
+        ls -lh
+
+        if [ $(stat -c "%s" ${new_input_filename}) -eq 0 ]; then
+            echo "The input file for this job has 0 size, the file is missing or ifdh failed to copy it."
+            exit 1
+        fi
+    else
         echo "No file to transfer"
 
-
-    ls -lh
-
-    if [ $(stat -c "%s" ${new_input_filename}) -eq 0 ]; then
-        echo "The input file for this job is missing"
-        exit 1
     fi
+
+
 
     echo "run exp code..."
     echo CMD: $(eval echo \$executable_${EXP_STAGE}) $(eval echo \$arguments_${EXP_STAGE} -c \$FHiCL_${EXP_STAGE} -n \$nevents_per_job_${EXP_STAGE} -o \$output_filename_${EXP_STAGE}) $new_input_filename
