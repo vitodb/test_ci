@@ -67,6 +67,8 @@ standard() {
         (echo CMD: ifdh cp ${CI_DCACHEDIR}/$(eval echo \$input_from_stage_${EXP_STAGE})/$new_input_filename $new_input_filename
         ifdh cp ${CI_DCACHEDIR}/$(eval echo \$input_from_stage_${EXP_STAGE})/$new_input_filename $new_input_filename)
 
+        echo "ifdh cp exit code: $?"
+
         ls -lh
 
         if [ $(stat -c "%s" ${new_input_filename}) -eq 0 ]; then
@@ -137,6 +139,11 @@ merge() {
         hist_desc="hits ${bf//.gif/}"
         hist_name="${bf//.gif/}"
         report_img "$report_phase" "" "${EXP_STAGE}_stage" "$hist_name" "$f" "$hist_desc"
+
+        ### ### ###
+        report_img "$report_phase" "" "validation_plots" "$hist_name" "$f" "$hist_desc"
+        report_img "validation_plots" "" "validation_plots" "$hist_name" "$f" "$hist_desc"
+        ### ### ###
     done
 
     echo CMD: ifdh cp -D $(eval echo \$output_filename_${EXP_STAGE}) calorimetry_validation.root ${CI_DCACHEDIR}/${EXP_STAGE}
