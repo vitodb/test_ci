@@ -149,7 +149,6 @@ merge() {
 
         ### ### ###
         report_img "$report_phase" "" "validation_plots" "$hist_name" "$f" "$hist_desc"
-        report_img "validation_plots" "" "validation_plots" "$hist_name" "$f" "$hist_desc"
         report_img "$report_phase" "" "end" "$hist_name" "$f" "$hist_desc"
         ### ### ###
     done
