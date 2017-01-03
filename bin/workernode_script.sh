@@ -86,6 +86,8 @@ standard() {
     echo CMD: $(eval echo \$executable_${EXP_STAGE}) $(eval echo \$arguments_${EXP_STAGE} -c \$FHiCL_${EXP_STAGE} -n \$nevents_per_job_${EXP_STAGE} -o \$output_filename_${EXP_STAGE}) $new_input_filename
     $(eval echo \$executable_${EXP_STAGE}) $(eval echo \$arguments_${EXP_STAGE} -c \$FHiCL_${EXP_STAGE} -n \$nevents_per_job_${EXP_STAGE} -o \$output_filename_${EXP_STAGE}) $new_input_filename
 
+    echo "exitstatus executable: $?"
+
     ls -lh
 
     echo "Copy output file..."
@@ -93,11 +95,13 @@ standard() {
     new_output_filename=${new_output_filename//.root/_${CI_PROCESS}.root}
     echo CMD: mv -v $(eval echo \$output_to_transfer_${EXP_STAGE}) $new_output_filename
     mv -v $(eval echo \$output_to_transfer_${EXP_STAGE}) $new_output_filename
+    echo "exitstatus mv output: $?"
     ls -lh
     echo CMD: ifdh cp ${PWD}/$new_output_filename ${CI_DCACHEDIR}/${EXP_STAGE}/$new_output_filename
     ifdh cp ${PWD}/$new_output_filename ${CI_DCACHEDIR}/${EXP_STAGE}/$new_output_filename
 
     report_exitcode=$?
+    echo "exitstatus ifdh cp: $report_exitcode"
 
     ls -lh
 
@@ -123,13 +127,16 @@ merge() {
     hadd $(eval echo \$output_filename_${EXP_STAGE}) $(for source_file in $( ifdh findMatchingFiles ${CI_DCACHEDIR}/$(eval echo \$input_from_stage_${EXP_STAGE})/ ${new_input_filename} 2> /dev/null | awk '{print $1}' ) ; do echo root://fndca1.fnal.gov:1094/${source_file//\/pnfs/pnfs\/fnal.gov\/usr}; done)
 
     report_exitcode=$?
+    echo "exitstatus hadd: $report_exitcode"
 
 
     echo CMD: calorimetry.py --tracker trackkalmanhit --input $(eval echo \$output_filename_${EXP_STAGE}) --output calorimetry_validation.root
     calorimetry.py --tracker trackkalmanhit --input $(eval echo \$output_filename_${EXP_STAGE}) --output calorimetry_validation.root
+    echo "exitstatus calorimetry.py: $?"
 
     echo CMD: makeplots.py --input calorimetry_validation.root --calorimetry
     makeplots.py --input calorimetry_validation.root --calorimetry
+    echo "exitstatus makeplots.py: $?"
 
 
     #report_img "$report_phase" "$test_suite" "$testname" "hits$i" "$f" "$desc"
@@ -148,12 +155,16 @@ merge() {
 
     echo CMD: ifdh cp -D $(eval echo \$output_filename_${EXP_STAGE}) calorimetry_validation.root ${CI_DCACHEDIR}/${EXP_STAGE}
     ifdh cp -D $(eval echo \$output_filename_${EXP_STAGE}) calorimetry_validation.root  ${CI_DCACHEDIR}/${EXP_STAGE}
+    echo "exitstatus ifdh cp files: $?"
     ifdh mkdir ${CI_DCACHEDIR}/${EXP_STAGE}/calorimetry
+    echo "exitstatus ifdh mkdir calorimetry: $?"
     echo CMD: ifdh cp -D calorimetry/\* ${CI_DCACHEDIR}/${EXP_STAGE}/calorimetry
     ifdh cp -D calorimetry/* ${CI_DCACHEDIR}/${EXP_STAGE}/calorimetry
+    echo "exitstatus ifdh cp calorimetry dir: $?"
 
     ### report_test_result "$report_phase" "" "${EXP_STAGE}_stage" "status" "${report_exitcode}.0"
 
+    ### check which exitcode report
     exit ${report_exitcode}
 
 }
