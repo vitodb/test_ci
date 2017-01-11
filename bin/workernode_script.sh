@@ -110,6 +110,18 @@ standard() {
     exit ${report_exitcode}
 }
 
+stage_index() {
+
+    array_stages=(${ci_grid_exp_stages})
+    cnt=0
+    for element in "${array_stages[@]}"
+    do
+        [[ ${element} == "$1" ]] && echo $((cnt+1)) && break
+        ((++cnt))
+    done
+
+}
+
 merge() {
 
     new_input_filename=$(eval echo \$input_filename_${EXP_STAGE})
@@ -145,10 +157,12 @@ merge() {
         bf=`basename $f`
         hist_desc="hits ${bf//.gif/}"
         hist_name="${bf//.gif/}"
-        report_img "$report_phase" "" "${EXP_STAGE}_stage" "$hist_name" "$f" "$hist_desc"
+        stage_counter_string=$(printf '%02d\n' "$(stage_index ${EXP_STAGE})")
+        report_img "$report_phase" "" "${stage_counter_string}_${EXP_STAGE}_stage" "$hist_name" "$f" "$hist_desc"
 
         ### ### ###
-        report_img "$report_phase" "" "validation_plots" "$hist_name" "$f" "$hist_desc"
+        stage_counter_string=$(printf '%02d\n' "$(( $(wc -w <<< ${ci_grid_exp_stages})+2 ))")
+        report_img "$report_phase" "" "${stage_counter_string}_validation_plots" "$hist_name" "$f" "$hist_desc"
         report_img "$report_phase" "" "end" "$hist_name" "$f" "$hist_desc"
         ### ### ###
     done
