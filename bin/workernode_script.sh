@@ -141,6 +141,20 @@ merge() {
     report_exitcode=$?
     echo "exitstatus hadd: $report_exitcode"
 
+    ### calorimeter_validation
+
+    $( ${validation_function_merge} )
+
+    ### report_test_result "$report_phase" "" "${EXP_STAGE}_stage" "status" "${report_exitcode}.0"
+
+    ### check which exitcode report
+    exit ${report_exitcode}
+
+}
+
+
+calorimeter_validation () {
+
 
     echo CMD: calorimetry.py --tracker trackkalmanhit --input $(eval echo \$output_filename_${EXP_STAGE}) --output calorimetry_validation.root
     calorimetry.py --tracker trackkalmanhit --input $(eval echo \$output_filename_${EXP_STAGE}) --output calorimetry_validation.root
@@ -174,15 +188,10 @@ merge() {
     echo "exitstatus ifdh mkdir calorimetry: $?"
     echo CMD: ifdh cp -D calorimetry/\* ${CI_DCACHEDIR}/${EXP_STAGE}/calorimetry
     ifdh cp -D calorimetry/* ${CI_DCACHEDIR}/${EXP_STAGE}/calorimetry
-    echo "exitstatus ifdh cp calorimetry dir: $?"
-
-    ### report_test_result "$report_phase" "" "${EXP_STAGE}_stage" "status" "${report_exitcode}.0"
-
-    ### check which exitcode report
-    exit ${report_exitcode}
+    exitstatus=$?
+    echo "exitstatus ifdh cp calorimetry dir: $exitstatus"
 
 }
-
 
 while :
 do
