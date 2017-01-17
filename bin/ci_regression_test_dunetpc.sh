@@ -15,6 +15,8 @@ function usage {
       --stage-name  Define the name of the test
       --testmask    Define the name of the testmask file
       --update-ref-files Flag to activate the "Update Reference Files" mode
+      --input-files
+      --reference-files
 EOF
 }
 
@@ -47,11 +49,20 @@ function initialize
       x--outputs)          OUTPUT_LIST="${2}"; OUTPUT_STREAM="${OUTPUT_LIST//,/ -o }";  shift; shift;;
       x--stage-name)       STAGE_NAME="${2}";                                           shift; shift;;
       x--testmask)         TESTMASK="${2}";                                             shift; shift;;
+      x--input-files)      INPUT_FILES="${2}";                                          shift; shift;;
+      x--reference-files)  REFERENCE_FILES="${2}";                                      shift; shift;;
       x--update-ref-files) UPDATE_REF_FILE_ON=1;                                        shift;;
       x)                                                                                break;;
       x*)            echo "Unknown argument $1"; usage; exit 1;;
       esac
     done
+
+    if [ -n ${INPUT_FILES} ]; then
+        fetch_files ${INPUT_FILES}
+    fi
+    if [ -n ${REFERENCE_FILES} ]; then
+        fetch_files  ${REFERENCE_FILES}
+    fi
 
     if [ ${UPDATE_REF_FILE_ON} -gt 0 ]; then
         echo -e "\n***************************************************"
@@ -84,6 +95,37 @@ function initialize
 }
 
 
+function fetch_files
+{
+    TASKSTRING="fetching files"
+    trap 'LASTERR=$?; echo -e "\nCI MSG BEGIN\n `basename $0`: error at line ${LINENO}\n Stage: ${STAGE_NAME}\n Task: ${TASKSTRING}\n exit status: ${LASTERR}\nCI MSG END\n"; exit ${LASTERR}' ERR
+
+    echo "fetching files for ${proj_PREFIX}_ci."
+    echo
+    echo "fetch_files $@"
+
+    maxretries_backup= $IFDH_CP_MAXRETRIES
+    debug_backup= $IFDH_DEBUG
+    export IFDH_DEBUG=1
+    export IFDH_CP_MAXRETRIES=0
+
+    for file in "${1//,/ }"
+    do
+        ifdh cp $file ./
+
+        if [ $? -ne 0 ]; then
+            exitstatus 202 #change it to 203 probably
+        fi
+
+    done
+
+    export IFDH_DEBUG=$debug_backup
+    export IFDH_CP_MAXRETRIES=$maxretries_backup
+
+    exitstatus $?
+}
+
+
 function data_production
 {
     TASKSTRING="data_production"
@@ -109,7 +151,7 @@ function data_production
         for CUR_OUT in ${OUTPUT_STREAM//-o/}
         do
             CUR_OUT=${CUR_OUT//*:/}
-            CUR_OUT2=$(echo $CUR_OUT | sed -r "s/_%#// ; s/_[0-9]+.root/.root/")
+            CUR_OUT2=$(echo $CUR_OUT | sed -e "s/_%#// ; s/_[0-9]+.root/.root/")
             [ "${CUR_OUT//_%#.root/_1.root}" = "${CUR_OUT2}" ] || ln -sv ${CUR_OUT//_%#.root/_1.root} ${CUR_OUT2}
         done
 
@@ -230,7 +272,16 @@ do
     file_stream=$(echo "${filename}" | cut -d ':' -f 1)
     current_file=$(echo "${filename}" | cut -d ':' -f 2)
 
-    reference_file=$(echo "${current_file%`echo ${build_platform}`*}${build_platform}${build_identifier}${current_file#*`echo ${build_platform}`}")
+    echo "filename: ${filename}"
+    echo "file_stream: ${file_stream}"
+    echo "current_file: ${current_file}"
+
+    if [ -n "${build_platform}" ]
+    then
+        reference_file=$(echo "${current_file%`echo ${build_platform}`*}${build_platform}${current_file#*`echo ${build_platform}`}")
+    else
+        reference_file=$(echo "${current_file}")
+    fi
     reference_file="${reference_file//Current/Reference}"
 
     if [[ "${check_compare_names}" -eq 1  || "${check_compare_size}" -eq 1 ]]
