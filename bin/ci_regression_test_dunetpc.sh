@@ -218,7 +218,7 @@ function compare_products_names
         #~~~~~~~~~~~~~~~IF THERE'S A DIFFERENCE EXIT WITH ERROR CODE 200~~~~~~~~~~~~~~~
         if [[ "${STATUS}" -ne 0  ]]; then
             echo "${DIFF}"
-            exitstatus 200
+            exitstatus 201
         else
             echo -e "none\n\n"
         fi
@@ -245,7 +245,7 @@ function compare_products_sizes
         #~~~~~~~~~~~~~~~IF THERE'S A DIFFERENCE EXIT WITH ERROR CODE 201 ~~~~~~~~~~~~~~~~~~~~~~~
         if [[ "${STATUS}" -ne 0 ]]; then
             echo "${DIFF}"
-            exitstatus 201
+            exitstatus 202
         else
             echo -e "none\n\n"
         fi
