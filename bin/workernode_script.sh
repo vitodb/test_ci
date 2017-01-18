@@ -177,8 +177,8 @@ calorimeter_validation () {
         ### ### ###
         ### stage_counter_string=$(printf '%02d\n' "$(( $(wc -w <<< ${ci_grid_exp_stages})+2 ))")
         ### report_img "$report_phase" "" "${stage_counter_string}_validation_plots" "$hist_name" "$f" "$hist_desc"
-        ### report_img "$report_phase" "" "end" "$hist_name" "$f" "$hist_desc"
         ### ### ###
+        report_img "$report_phase" "" "end" "$hist_name" "$f" "$hist_desc"
     done
 
     echo CMD: ifdh cp -D $(eval echo \$output_filename_${EXP_STAGE}) calorimetry_validation.root ${CI_DCACHEDIR}/${EXP_STAGE}
