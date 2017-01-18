@@ -34,6 +34,8 @@ function initialize
     NEVENTS=1
     INPUT_FILE=""
     UPDATE_REF_FILE_ON=0
+    REFERENCE_FILES=""
+    INPUT_FILES=""
     #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
     #~~~~~~~~~~~~~~~~~~~~~~GET VALUE FROM THE CI_TESTS.CFG ARGS SECTION~~~~~~~~~~~~~~~
@@ -57,13 +59,6 @@ function initialize
       esac
     done
 
-    if [ -n ${INPUT_FILES} ]; then
-        fetch_files ${INPUT_FILES}
-    fi
-    if [ -n ${REFERENCE_FILES} ]; then
-        fetch_files  ${REFERENCE_FILES}
-    fi
-
     if [ ${UPDATE_REF_FILE_ON} -gt 0 ]; then
         echo -e "\n***************************************************"
         echo "This CI build is running to update reference files:"
@@ -72,6 +67,13 @@ function initialize
         echo -e "***************************************************\n"
         TESTMASK=""
         NEVENTS=1
+    fi
+
+    if [ -n "${INPUT_FILES}" ]; then
+        fetch_files input ${INPUT_FILES}
+    fi
+    if [ -n "${REFERENCE_FILES}" ]; then
+        fetch_files reference ${REFERENCE_FILES}
     fi
 
     #~~~~~~~~~~~~~~~~~~~~~PARSE THE TESTMASK FILE TO UNDERSTAND WHICH FUNCTION TO RUN ~~~~~~~~~~~~
@@ -97,24 +99,29 @@ function initialize
 
 function fetch_files
 {
-    TASKSTRING="fetching files"
-    trap 'LASTERR=$?; echo -e "\nCI MSG BEGIN\n `basename $0`: error at line ${LINENO}\n Stage: ${STAGE_NAME}\n Task: ${TASKSTRING}\n exit status: ${LASTERR}\nCI MSG END\n"; exit ${LASTERR}' ERR
-
-    echo "fetching files for ${proj_PREFIX}_ci."
+    old_taskstring="$TASKSTRING"
+    TASKSTRING="fetching $1 files"
+    #trap 'LASTERR=$?; echo -e "\nCI MSG BEGIN\n `basename $0`: error at line ${LINENO}\n Stage: ${STAGE_NAME}\n Task: ${TASKSTRING}\n exit status: ${LASTERR}\nCI MSG END\n"; exit ${LASTERR}' ERR
+    echo
+    echo "fetching $1 files for ${proj_PREFIX}_ci."
     echo
     echo "fetch_files $@"
+    echo
 
     maxretries_backup= $IFDH_CP_MAXRETRIES
     debug_backup= $IFDH_DEBUG
-    export IFDH_DEBUG=1
+    export IFDH_DEBUG=0
     export IFDH_CP_MAXRETRIES=0
 
-    for file in "${1//,/ }"
+    for file in ${2//,/ }
     do
+        echo "Copying: " $file
+        echo "Command: ifdh cp $file ./"
         ifdh cp $file ./
 
         if [ $? -ne 0 ]; then
-            exitstatus 202 #change it to 203 probably
+            echo "Failed to fetch $file"
+            exitstatus 203
         fi
 
     done
@@ -123,6 +130,7 @@ function fetch_files
     export IFDH_CP_MAXRETRIES=$maxretries_backup
 
     exitstatus $?
+    TASKSTRING="$old_taskstring"
 }
 
 
