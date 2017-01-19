@@ -285,7 +285,7 @@ function exitstatus
     echo -e "\nCI MSG BEGIN\n Stage: ${STAGE_NAME}\n Task: ${TASKSTRING}\n exit status: ${EXITSTATUS}\nCI MSG END\n"
     if [[ "${EXITSTATUS}" -ne 0 ]]; then
         if [ -n "$ERRORSTRING" ];then
-            echo $ERRORSTRING >> $WORKSPACE/data_production_stats.log
+            echo "${STAGE}@${EXITSTATUS}@$ERRORSTRING" >> $WORKSPACE/data_production_stats.log
         fi
         exit "${EXITSTATUS}"
     fi
