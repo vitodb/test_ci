@@ -36,6 +36,7 @@ function initialize
     UPDATE_REF_FILE_ON=0
     REFERENCE_FILES=""
     INPUT_FILES=""
+    UPLOAD_REFERENCE_FILE=false
     #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
     #~~~~~~~~~~~~~~~~~~~~~~GET VALUE FROM THE CI_TESTS.CFG ARGS SECTION~~~~~~~~~~~~~~~
@@ -100,7 +101,14 @@ function initialize
 function fetch_files
 {
     old_taskstring="$TASKSTRING"
+    old_errorstring="$ERRORSTRING"
     TASKSTRING="fetching $1 files"
+    if [ "$1" == "reference" ];then
+        ERRORSTRING="Warning in fetching $1 files,We tried to upload the file on your reference folder directory"
+    elif [ "$1" == "input" ];then
+        ERRORSTRING="Warning in fetching $1 files,Check if the file is available in your reference folder directory"
+    fi
+
     #trap 'LASTERR=$?; echo -e "\nCI MSG BEGIN\n `basename $0`: error at line ${LINENO}\n Stage: ${STAGE_NAME}\n Task: ${TASKSTRING}\n exit status: ${LASTERR}\nCI MSG END\n"; exit ${LASTERR}' ERR
     echo
     echo "fetching $1 files for ${proj_PREFIX}_ci."
@@ -120,8 +128,17 @@ function fetch_files
         ifdh cp $file ./
 
         if [ $? -ne 0 ]; then
-            echo "Failed to fetch $file"
-            exitstatus 203
+            if [ "$1" == "reference" ];then #if it's a
+                #skip the error and use something to execute first the data production and then coppy the reference dile on dcache
+                check_data_production=1
+                check_compare_names=0
+                check_compare_size=0
+                #skip the compares because we don't have a reference file
+                UPLOAD_REFERENCE_FILE=true
+            else
+                echo "Failed to fetch $file"
+                exitstatus 203
+            fi
         fi
 
     done
@@ -131,12 +148,14 @@ function fetch_files
 
     exitstatus $?
     TASKSTRING="$old_taskstring"
+    ERRORSTRING="$old_errorstring"
 }
 
 
 function data_production
 {
     TASKSTRING="data_production"
+    ERRORSTRING=""
     trap 'LASTERR=$?; echo -e "\nCI MSG BEGIN\n `basename $0`: error at line ${LINENO}\n Stage: ${STAGE_NAME}\n Task: ${TASKSTRING}\n exit status: ${LASTERR}\nCI MSG END\n"; exit ${LASTERR}' ERR
 
     export TMPDIR=${PWD} #Temporary directory used by IFDHC
@@ -170,6 +189,7 @@ function data_production
 function generate_data_dump
 {
     TASKSTRING="generate_data_dump for ${file_stream} output stream"
+    ERRORSTRING=""
 
     trap 'LASTERR=$?; echo -e "\nCI MSG BEGIN\n `basename $0`: error at line ${LINENO}\n Stage: ${STAGE_NAME}\n Task: ${TASKSTRING}\n exit status: ${LASTERR}\nCI MSG END\n"; exit ${LASTERR}' ERR
 
@@ -204,6 +224,7 @@ function generate_data_dump
 function compare_products_names
 {
     TASKSTRING="compare_products_names for ${file_stream} output stream"
+    ERRORSTRING="Differences in products names,Please consider to request a new set of reference files"
 
     if [[ "$1" -eq 1 ]]
     then
@@ -231,6 +252,8 @@ function compare_products_names
 function compare_products_sizes
 {
     TASKSTRING="compare_products_sizes for ${file_stream} output stream"
+    ERRORSTRING="Differences in products sizes,Please consider to request a new set of reference files"
+
 
     if [[ "${1}" -eq 1 ]]
     then
@@ -261,7 +284,10 @@ function exitstatus
     EXITSTATUS="$1"
     echo -e "\nCI MSG BEGIN\n Stage: ${STAGE_NAME}\n Task: ${TASKSTRING}\n exit status: ${EXITSTATUS}\nCI MSG END\n"
     if [[ "${EXITSTATUS}" -ne 0 ]]; then
-      exit "${EXITSTATUS}"
+        if [ -n "$ERRORSTRING" ];then
+            echo $ERRORSTRING >> $WORKSPACE/data_production_stats.log
+        fi
+        exit "${EXITSTATUS}"
     fi
 }
 
