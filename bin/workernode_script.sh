@@ -149,7 +149,7 @@ merge() {
 
     ### calorimeter_validation
 
-    $( ${validation_function_merge} )
+    $( ${VALIDATION_FUNCTION} )
 
     ### report_test_result "$report_phase" "" "${EXP_STAGE}_stage" "status" "${report_exitcode}.0"
 
