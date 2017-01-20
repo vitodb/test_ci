@@ -104,9 +104,9 @@ function fetch_files
     old_errorstring="$ERRORSTRING"
     TASKSTRING="fetching $1 files"
     if [ "$1" == "reference" ];then
-        ERRORSTRING="Warning in fetching $1 files,We tried to upload the file on your reference folder directory"
+        ERRORSTRING="W@Warning in fetching $1 files@We tried to upload the $1 file on your reference folder directory"
     elif [ "$1" == "input" ];then
-        ERRORSTRING="Warning in fetching $1 files,Check if the file is available in your reference folder directory"
+        ERRORSTRING="W@Warning in fetching $1 files@Check if the $1 files are available in your input dile directory"
     fi
 
     #trap 'LASTERR=$?; echo -e "\nCI MSG BEGIN\n `basename $0`: error at line ${LINENO}\n Stage: ${STAGE_NAME}\n Task: ${TASKSTRING}\n exit status: ${LASTERR}\nCI MSG END\n"; exit ${LASTERR}' ERR
@@ -155,7 +155,7 @@ function fetch_files
 function data_production
 {
     TASKSTRING="data_production"
-    ERRORSTRING=""
+    ERRORSTRING="E@Error in data production"
     trap 'LASTERR=$?; echo -e "\nCI MSG BEGIN\n `basename $0`: error at line ${LINENO}\n Stage: ${STAGE_NAME}\n Task: ${TASKSTRING}\n exit status: ${LASTERR}\nCI MSG END\n"; exit ${LASTERR}' ERR
 
     export TMPDIR=${PWD} #Temporary directory used by IFDHC
@@ -189,7 +189,7 @@ function data_production
 function generate_data_dump
 {
     TASKSTRING="generate_data_dump for ${file_stream} output stream"
-    ERRORSTRING=""
+    ERRORSTRING="E@Error during dump Generation"
 
     trap 'LASTERR=$?; echo -e "\nCI MSG BEGIN\n `basename $0`: error at line ${LINENO}\n Stage: ${STAGE_NAME}\n Task: ${TASKSTRING}\n exit status: ${LASTERR}\nCI MSG END\n"; exit ${LASTERR}' ERR
 
@@ -224,7 +224,7 @@ function generate_data_dump
 function compare_products_names
 {
     TASKSTRING="compare_products_names for ${file_stream} output stream"
-    ERRORSTRING="Differences in products names,Please consider to request a new set of reference files"
+    ERRORSTRING="W@Differences in products names@Please consider to request a new set of reference files"
 
     if [[ "$1" -eq 1 ]]
     then
@@ -252,7 +252,7 @@ function compare_products_names
 function compare_products_sizes
 {
     TASKSTRING="compare_products_sizes for ${file_stream} output stream"
-    ERRORSTRING="Differences in products sizes,Please consider to request a new set of reference files"
+    ERRORSTRING="W@Differences in products sizes@Please consider to request a new set of reference files"
 
 
     if [[ "${1}" -eq 1 ]]
@@ -285,7 +285,7 @@ function exitstatus
     echo -e "\nCI MSG BEGIN\n Stage: ${STAGE_NAME}\n Task: ${TASKSTRING}\n exit status: ${EXITSTATUS}\nCI MSG END\n"
     if [[ "${EXITSTATUS}" -ne 0 ]]; then
         if [ -n "$ERRORSTRING" ];then
-            echo "${STAGE_NAME}@${EXITSTATUS}@$ERRORSTRING" >> $WORKSPACE/data_production_stats.log
+            echo "`basename $PWD`@${EXITSTATUS}@$ERRORSTRING" >> $WORKSPACE/data_production_stats.log
         fi
         exit "${EXITSTATUS}"
     fi
