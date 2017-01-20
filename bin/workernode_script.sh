@@ -177,8 +177,8 @@ calorimeter_validation () {
         bf=`basename $f`
         hist_desc="hits ${bf//.gif/}"
         hist_name="${bf//.gif/}"
-        stage_counter_string=$(printf '%02d\n' "$(stage_index ${EXP_STAGE})")
-        report_img "$report_phase" "" "${stage_counter_string}_${EXP_STAGE}_stage" "$hist_name" "$f" "$hist_desc"
+        ### stage_counter_string=$(printf '%02d\n' "$(stage_index ${EXP_STAGE})")
+        ### report_img "$report_phase" "" "${stage_counter_string}_${EXP_STAGE}_stage" "$hist_name" "$f" "$hist_desc"
 
         ### ### ###
         ### stage_counter_string=$(printf '%02d\n' "$(( $(wc -w <<< ${ci_grid_exp_stages})+2 ))")
