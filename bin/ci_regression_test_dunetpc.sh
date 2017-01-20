@@ -23,7 +23,8 @@ EOF
 function initialize
 {
     TASKSTRING="initialize"
-    trap 'LASTERR=$?; echo -e "\nCI MSG BEGIN\n `basename $0`: error at line ${LINENO}\n Stage: ${STAGE_NAME}\n Task: ${TASKSTRING}\n exit status: ${LASTERR}\nCI MSG END\n"; exit ${LASTERR}' ERR
+    trap 'LASTERR=$?; FUNCTION_NAME=${FUNCNAME[0]:-main}; `exitstatus ${LASTERR} trap`' ERR
+    #trap 'LASTERR=$?; echo -e "\nCI MSG BEGIN\n `basename $0`: error at line ${LINENO}\n Stage: ${STAGE_NAME}\n Task: ${TASKSTRING}\n exit status: ${LASTERR}\nCI MSG END\n"; exit ${LASTERR}' ERR
 
     echo "running CI tests for ${proj_PREFIX}_ci."
     echo
@@ -156,7 +157,9 @@ function data_production
 {
     TASKSTRING="data_production"
     ERRORSTRING="E@Error in data production@This is an error message"
-    trap 'LASTERR=$?; echo -e "\nCI MSG BEGIN\n `basename $0`: error at line ${LINENO}\n Stage: ${STAGE_NAME}\n Task: ${TASKSTRING}\n exit status: ${LASTERR}\nCI MSG END\n"; exit ${LASTERR}' ERR
+    trap 'LASTERR=$?; FUNCTION_NAME=${FUNCNAME[0]:-main}; `exitstatus ${LASTERR} trap`' ERR
+
+    #trap 'LASTERR=$?; echo -e "\nCI MSG BEGIN\n `basename $0`: error at line ${LINENO}\n Stage: ${STAGE_NAME}\n Task: ${TASKSTRING}\n exit status: ${LASTERR}\nCI MSG END\n"; exit ${LASTERR}' ERR
 
     export TMPDIR=${PWD} #Temporary directory used by IFDHC
 
@@ -191,7 +194,8 @@ function generate_data_dump
     TASKSTRING="generate_data_dump for ${file_stream} output stream"
     ERRORSTRING="E@Error during dump Generation@this is an error message"
 
-    trap 'LASTERR=$?; echo -e "\nCI MSG BEGIN\n `basename $0`: error at line ${LINENO}\n Stage: ${STAGE_NAME}\n Task: ${TASKSTRING}\n exit status: ${LASTERR}\nCI MSG END\n"; exit ${LASTERR}' ERR
+    trap 'LASTERR=$?; FUNCTION_NAME=${FUNCNAME[0]:-main}; `exitstatus ${LASTERR} trap`' ERR
+    #trap 'LASTERR=$?; echo -e "\nCI MSG BEGIN\n `basename $0`: error at line ${LINENO}\n Stage: ${STAGE_NAME}\n Task: ${TASKSTRING}\n exit status: ${LASTERR}\nCI MSG END\n"; exit ${LASTERR}' ERR
 
     local NEVENTS=1
 
@@ -282,7 +286,12 @@ function compare_products_sizes
 function exitstatus
 {
     EXITSTATUS="$1"
-    echo -e "\nCI MSG BEGIN\n Stage: ${STAGE_NAME}\n Task: ${TASKSTRING}\n exit status: ${EXITSTATUS}\nCI MSG END\n"
+    if [ "$2" == "trap" ];then
+        echo -e "\nCI MSG BEGIN\n Script:`basename $0`\n Function ${FUNCTION_NAME}: error at line ${LINENO}\n Stage: ${STAGE_NAME}\n Task: ${TASKSTRING}\n exit status: ${LASTERR}\nCI MSG END\n"
+    else
+        echo -e "\nCI MSG BEGIN\n Stage: ${STAGE_NAME}\n Task: ${TASKSTRING}\n exit status: ${EXITSTATUS}\nCI MSG END\n"
+    fi
+
     if [[ "${EXITSTATUS}" -ne 0 ]]; then
         if [ -n "$ERRORSTRING" ];then
             echo "`basename $PWD`@${EXITSTATUS}@$ERRORSTRING" >> $WORKSPACE/data_production_stats.log
@@ -294,7 +303,8 @@ function exitstatus
 
 
 #~~~~~~~~~~~~~~~~~~~~~~~~MAIN OF THE SCRIPT~~~~~~~~~~~~~~~~~~
-trap 'LASTERR=$?; echo -e "\nCI MSG BEGIN\n `basename $0`: error at line ${LINENO}\n Stage: ${STAGE_NAME}\n Task: ${TASKSTRING}\n exit status: ${LASTERR}\nCI MSG END\n"; exit ${LASTERR}' ERR
+trap 'LASTERR=$?; FUNCTION_NAME=${FUNCNAME[0]:-main}; `exitstatus ${LASTERR} trap`' ERR
+#trap 'LASTERR=$?; echo -e "\nCI MSG BEGIN\n `basename $0`: error at line ${LINENO}\n Stage: ${STAGE_NAME}\n Task: ${TASKSTRING}\n exit status: ${LASTERR}\nCI MSG END\n"; exit ${LASTERR}' ERR
 
 initialize $@
 
