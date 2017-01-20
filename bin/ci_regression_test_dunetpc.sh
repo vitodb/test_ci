@@ -23,7 +23,7 @@ EOF
 function initialize
 {
     TASKSTRING="initialize"
-    trap 'LASTERR=$?; FUNCTION_NAME=${FUNCNAME[0]:-main}; `exitstatus ${LASTERR} trap`' ERR
+    trap 'LASTERR=$?; FUNCTION_NAME=${FUNCNAME[0]:-main}; echo "entering the trap"; `exitstatus ${LASTERR} trap`' ERR
     #trap 'LASTERR=$?; echo -e "\nCI MSG BEGIN\n `basename $0`: error at line ${LINENO}\n Stage: ${STAGE_NAME}\n Task: ${TASKSTRING}\n exit status: ${LASTERR}\nCI MSG END\n"; exit ${LASTERR}' ERR
 
     echo "running CI tests for ${proj_PREFIX}_ci."
@@ -157,7 +157,7 @@ function data_production
 {
     TASKSTRING="data_production"
     ERRORSTRING="E@Error in data production@This is an error message"
-    trap 'LASTERR=$?; FUNCTION_NAME=${FUNCNAME[0]:-main}; `exitstatus ${LASTERR} trap`' ERR
+    trap 'LASTERR=$?; FUNCTION_NAME=${FUNCNAME[0]:-main}; echo "entering the trap"; `exitstatus ${LASTERR} trap`' ERR
 
     #trap 'LASTERR=$?; echo -e "\nCI MSG BEGIN\n `basename $0`: error at line ${LINENO}\n Stage: ${STAGE_NAME}\n Task: ${TASKSTRING}\n exit status: ${LASTERR}\nCI MSG END\n"; exit ${LASTERR}' ERR
 
@@ -194,7 +194,7 @@ function generate_data_dump
     TASKSTRING="generate_data_dump for ${file_stream} output stream"
     ERRORSTRING="E@Error during dump Generation@this is an error message"
 
-    trap 'LASTERR=$?; FUNCTION_NAME=${FUNCNAME[0]:-main}; `exitstatus ${LASTERR} trap`' ERR
+    trap 'LASTERR=$?; FUNCTION_NAME=${FUNCNAME[0]:-main}; echo "entering the trap"; `exitstatus ${LASTERR} trap`' ERR
     #trap 'LASTERR=$?; echo -e "\nCI MSG BEGIN\n `basename $0`: error at line ${LINENO}\n Stage: ${STAGE_NAME}\n Task: ${TASKSTRING}\n exit status: ${LASTERR}\nCI MSG END\n"; exit ${LASTERR}' ERR
 
     local NEVENTS=1
@@ -287,7 +287,7 @@ function exitstatus
 {
     EXITSTATUS="$1"
     if [ "$2" == "trap" ];then
-        echo -e "\nCI MSG BEGIN\n Script:`basename $0`\n Function ${FUNCTION_NAME}: error at line ${LINENO}\n Stage: ${STAGE_NAME}\n Task: ${TASKSTRING}\n exit status: ${LASTERR}\nCI MSG END\n"
+        echo -e "\nCI MSG BEGIN\n Script: `basename $0`\n Function ${FUNCTION_NAME}: error at line ${LINENO}\n Stage: ${STAGE_NAME}\n Task: ${TASKSTRING}\n exit status: $EXITSTATUS\nCI MSG END\n"
     else
         echo -e "\nCI MSG BEGIN\n Stage: ${STAGE_NAME}\n Task: ${TASKSTRING}\n exit status: ${EXITSTATUS}\nCI MSG END\n"
     fi
@@ -303,7 +303,7 @@ function exitstatus
 
 
 #~~~~~~~~~~~~~~~~~~~~~~~~MAIN OF THE SCRIPT~~~~~~~~~~~~~~~~~~
-trap 'LASTERR=$?; FUNCTION_NAME=${FUNCNAME[0]:-main}; `exitstatus ${LASTERR} trap`' ERR
+trap 'LASTERR=$?; FUNCTION_NAME=${FUNCNAME[0]:-main}; echo "entering the trap"; echo "entering the trap" `exitstatus ${LASTERR} trap`' ERR
 #trap 'LASTERR=$?; echo -e "\nCI MSG BEGIN\n `basename $0`: error at line ${LINENO}\n Stage: ${STAGE_NAME}\n Task: ${TASKSTRING}\n exit status: ${LASTERR}\nCI MSG END\n"; exit ${LASTERR}' ERR
 
 initialize $@
