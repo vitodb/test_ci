@@ -194,7 +194,7 @@ function generate_data_dump
     TASKSTRING="generate_data_dump for ${file_stream} output stream"
     ERRORSTRING="E@Error during dump Generation@this is an error message"
 
-    trap 'LASTERR=$?; FUNCTION_NAME=${FUNCNAME[0]:-main}; echo "entering the trap"; `exitstatus ${LASTERR} trap`' ERR
+    trap 'LASTERR=$?; FUNCTION_NAME=${FUNCNAME[0]:-main}; echo "entering the trap"; exitstatus ${LASTERR} trap' ERR
     #trap 'LASTERR=$?; echo -e "\nCI MSG BEGIN\n `basename $0`: error at line ${LINENO}\n Stage: ${STAGE_NAME}\n Task: ${TASKSTRING}\n exit status: ${LASTERR}\nCI MSG END\n"; exit ${LASTERR}' ERR
 
     local NEVENTS=1
