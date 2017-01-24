@@ -23,8 +23,8 @@ EOF
 function initialize
 {
     TASKSTRING="initialize"
-    ERRORSTRING="W@Error initializing the test@"
-    trap 'LASTERR=$?; FUNCTION_NAME=${FUNCNAME[0]:-main}; echo "entering the trap"; exitstatus ${LASTERR} trap; exit ${LASTERR}' ERR
+    ERRORSTRING="E@Error initializing the test"
+    trap 'LASTERR=$?; FUNCTION_NAME=${FUNCNAME[0]:-main};  exitstatus ${LASTERR} trap; exit ${LASTERR}' ERR
     #trap 'LASTERR=$?; echo -e "\nCI MSG BEGIN\n `basename $0`: error at line ${LINENO}\n Stage: ${STAGE_NAME}\n Task: ${TASKSTRING}\n exit status: ${LASTERR}\nCI MSG END\n"; exit ${LASTERR}' ERR
 
     echo "running CI tests for ${proj_PREFIX}_ci."
@@ -111,6 +111,8 @@ function fetch_files
         ERRORSTRING="W@Warning in fetching $1 files@Check if the $1 files are available in your input dile directory"
     fi
 
+    trap 'LASTERR=$?; FUNCTION_NAME=${FUNCNAME[0]:-main};  exitstatus ${LASTERR} trap ; exit ${LASTERR}' ERR
+
     #trap 'LASTERR=$?; echo -e "\nCI MSG BEGIN\n `basename $0`: error at line ${LINENO}\n Stage: ${STAGE_NAME}\n Task: ${TASKSTRING}\n exit status: ${LASTERR}\nCI MSG END\n"; exit ${LASTERR}' ERR
     echo
     echo "fetching $1 files for ${proj_PREFIX}_ci."
@@ -130,17 +132,8 @@ function fetch_files
         ifdh cp $file ./
 
         if [ $? -ne 0 ]; then
-            if [ "$1" == "reference" ];then #if it's a
-                #skip the error and use something to execute first the data production and then coppy the reference dile on dcache
-                check_data_production=1
-                check_compare_names=0
-                check_compare_size=0
-                #skip the compares because we don't have a reference file
-                UPLOAD_REFERENCE_FILE=true
-            else
-                echo "Failed to fetch $file"
-                exitstatus 203
-            fi
+            echo "Failed to fetch $file"
+            exitstatus 203
         fi
 
     done
@@ -157,8 +150,8 @@ function fetch_files
 function data_production
 {
     TASKSTRING="data_production"
-    ERRORSTRING="E@Error in data production@This is an error message"
-    trap 'LASTERR=$?; FUNCTION_NAME=${FUNCNAME[0]:-main}; echo "entering the trap"; exitstatus ${LASTERR} trap; exit ${LASTERR}' ERR
+    ERRORSTRING="E@Error in data production"
+    trap 'LASTERR=$?; FUNCTION_NAME=${FUNCNAME[0]:-main};  exitstatus ${LASTERR} trap; exit ${LASTERR}' ERR
 
     #trap 'LASTERR=$?; echo -e "\nCI MSG BEGIN\n `basename $0`: error at line ${LINENO}\n Stage: ${STAGE_NAME}\n Task: ${TASKSTRING}\n exit status: ${LASTERR}\nCI MSG END\n"; exit ${LASTERR}' ERR
 
@@ -193,9 +186,9 @@ function data_production
 function generate_data_dump
 {
     TASKSTRING="generate_data_dump for ${file_stream} output stream"
-    ERRORSTRING="E@Error during dump Generation@this is an error message"
+    ERRORSTRING="E@Error during dump Generation"
 
-    trap 'LASTERR=$?; FUNCTION_NAME=${FUNCNAME[0]:-main}; echo "entering the trap"; exitstatus ${LASTERR} trap; exit ${LASTERR}' ERR
+    trap 'LASTERR=$?; FUNCTION_NAME=${FUNCNAME[0]:-main};  exitstatus ${LASTERR} trap; exit ${LASTERR}' ERR
     #trap 'LASTERR=$?; echo -e "\nCI MSG BEGIN\n `basename $0`: error at line ${LINENO}\n Stage: ${STAGE_NAME}\n Task: ${TASKSTRING}\n exit status: ${LASTERR}\nCI MSG END\n"; exit ${LASTERR}' ERR
 
     local NEVENTS=1
@@ -288,7 +281,7 @@ function exitstatus
 {
     EXITSTATUS="$1"
     if [ "$2" == "trap" ];then
-        echo -e "\nCI MSG BEGIN\n Script: `basename $0`\n Function ${FUNCTION_NAME}: error at line ${LINENO}\n Stage: ${STAGE_NAME}\n Task: ${TASKSTRING}\n exit status: $EXITSTATUS\nCI MSG END\n"
+        echo -e "\nCI MSG BEGIN\n Script: `basename $0`\n Function: ${FUNCTION_NAME} - error at line ${LINENO}\n Stage: ${STAGE_NAME}\n Task: ${TASKSTRING}\n exit status: $EXITSTATUS\nCI MSG END\n"
     else
         echo -e "\nCI MSG BEGIN\n Stage: ${STAGE_NAME}\n Task: ${TASKSTRING}\n exit status: ${EXITSTATUS}\nCI MSG END\n"
     fi
@@ -304,7 +297,7 @@ function exitstatus
 
 
 #~~~~~~~~~~~~~~~~~~~~~~~~MAIN OF THE SCRIPT~~~~~~~~~~~~~~~~~~
-trap 'LASTERR=$?; FUNCTION_NAME=${FUNCNAME[0]:-main}; echo "entering the trap"; echo "entering the trap" ;exitstatus ${LASTERR} trap ; exit ${LASTERR}' ERR
+trap 'LASTERR=$?; FUNCTION_NAME=${FUNCNAME[0]:-main};  exitstatus ${LASTERR} trap ; exit ${LASTERR}' ERR
 #trap 'LASTERR=$?; echo -e "\nCI MSG BEGIN\n `basename $0`: error at line ${LINENO}\n Stage: ${STAGE_NAME}\n Task: ${TASKSTRING}\n exit status: ${LASTERR}\nCI MSG END\n"; exit ${LASTERR}' ERR
 
 initialize $@
