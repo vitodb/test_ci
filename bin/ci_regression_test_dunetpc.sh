@@ -106,9 +106,9 @@ function fetch_files
     old_errorstring="$ERRORSTRING"
     TASKSTRING="fetching $1 files"
     if [ "$1" == "reference" ];then
-        ERRORSTRING="W@Warning in fetching $1 files@We tried to upload the $1 file on your reference folder directory"
+        ERRORSTRING="E@Warning in fetching $1 files@We tried to upload the $1 file on your reference folder directory"
     elif [ "$1" == "input" ];then
-        ERRORSTRING="W@Warning in fetching $1 files@Check if the $1 files are available in your input dile directory"
+        ERRORSTRING="E@Warning in fetching $1 files@Check if the $1 files are available in your input dile directory"
     fi
 
     trap 'LASTERR=$?; FUNCTION_NAME=${FUNCNAME[0]:-main};  exitstatus ${LASTERR} trap ; exit ${LASTERR}' ERR
@@ -132,8 +132,17 @@ function fetch_files
         ifdh cp $file ./
 
         if [ $? -ne 0 ]; then
-            echo "Failed to fetch $file"
-            exitstatus 203
+            if [ "$1" == "reference" ];then #if it's a
+                #skip the error and use something to execute first the data production and then coppy the reference dile on dcache
+                check_data_production=1
+                check_compare_names=0
+                check_compare_size=0
+                #skip the compares because we don't have a reference file
+                UPLOAD_REFERENCE_FILE=true
+            else
+                echo "Failed to fetch $file"
+                exitstatus 211
+            fi
         fi
 
     done
@@ -180,6 +189,10 @@ function data_production
         done
 
     OUTPUT_LIST=${OUTPUT_LIST//_%#/}
+
+    if [ $UPLOAD_REFERENCE_FILE == true ];then
+        #upload the produced file on the reference folder
+    fi
 
 }
 
@@ -332,4 +345,6 @@ do
     compare_products_names "${check_compare_names}"
 
     compare_products_sizes "${check_compare_size}"
+
+    upload_reference_file "${current_file}" "$reference_file"
 done
