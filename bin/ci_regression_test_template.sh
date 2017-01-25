@@ -106,9 +106,9 @@ function fetch_files
     old_errorstring="$ERRORSTRING"
     TASKSTRING="fetching $1 files"
     if [ "$1" == "reference" ];then
-        ERRORSTRING="E@Warning in fetching $1 files@We tried to upload the $1 file on your reference folder directory"
+        ERRORSTRING="W@Warning in fetching $1 files@We tried to upload the $1 file on your reference folder directory"
     elif [ "$1" == "input" ];then
-        ERRORSTRING="E@Warning in fetching $1 files@Check if the $1 files are available in your input dile directory"
+        ERRORSTRING="W@Warning in fetching $1 files@Check if the $1 files are available in your input dile directory"
     fi
 
     trap 'LASTERR=$?; FUNCTION_NAME=${FUNCNAME[0]:-main};  exitstatus ${LASTERR} trap ; exit ${LASTERR}' ERR
@@ -133,7 +133,7 @@ function fetch_files
 
         if [ $? -ne 0 ]; then
             echo "Failed to fetch $file"
-            exitstatus 211
+            exitstatus 203
         fi
 
     done
