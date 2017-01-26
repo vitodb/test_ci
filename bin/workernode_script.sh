@@ -22,9 +22,6 @@ trap
 trap 'traperror $? $LINENO $BASH_LINENO "$BASH_COMMAND" $(printf "::%s" ${FUNCNAME[@]}) $ERRORFATAL' ERR
 trap
 
-
-EXP_STAGE=${1}
-
 #report_test_result "$report_phase" "$test_suite[not used]" "$test_name" "$statistic" "$value.0"
 
 ### report_test_result "$report_phase" "" "${EXP_STAGE}_stage" "status" "-2.0"
@@ -35,7 +32,8 @@ EXP_STAGE=${1}
 echo CONDOR_DIR_INPUT: ${CONDOR_DIR_INPUT}
 echo INPUT_TAR_FILE: ${INPUT_TAR_FILE}
 echo PWD: ${PWD}
-echo EXP_STAGE: ${EXP_STAGE}
+echo ${0}
+echo "@: ${@}"
 
 ls -lh ${CONDOR_DIR_INPUT}
 ls -lh ${INPUT_TAR_FILE}
@@ -43,8 +41,6 @@ ls -lh ${INPUT_TAR_FILE}
 unset CETPKG_BUILD
 unset OLD_MRB_BUILDDIR
 unset PRODUCTS
-
-
 
 #source /cvmfs/dune.opensciencegrid.org/products/dune/setup_dune.sh || source /grid/fermiapp/products/dune/setup_dune.sh
 source /cvmfs/uboone.opensciencegrid.org/products/setup_uboone.sh || source /grid/fermiapp/products/uboone/setup_uboone.sh
@@ -59,9 +55,6 @@ else
 fi
 
 ups active
-
-
-echo "@: $@"
 
 standard() {
     echo "Copy input file (if any)..."
