@@ -367,35 +367,34 @@ initialize $@
 data_production "${check_data_production}"
 
 #~~~~~~~~~~~~~~~~PROCESS ALL THE FILES DECLARED INTO THE OUTPUT LIST~~~~~~~~~~~~~~~~~
-for filename in ${OUTPUT_LIST//,/ }
-do
-    file_stream=$(echo "${filename}" | cut -d ':' -f 1)
-    current_file=$(echo "${filename}" | cut -d ':' -f 2)
-
-    echo "filename: ${filename}"
-    echo "file_stream: ${file_stream}"
-    echo "current_file: ${current_file}"
-
-    if [ -n "${build_platform}" ]
-    then
-        reference_file=$(echo "${current_file%`echo ${build_platform}`*}${build_platform}${current_file#*`echo ${build_platform}`}")
-    else
-        reference_file=$(echo "${current_file}")
-    fi
-    reference_file="${reference_file//Current/Reference}"
-
-    if [[ "${check_compare_names}" -eq 1  || "${check_compare_size}" -eq 1 ]]
-    then
-        generate_data_dump
-    else
-        break
-    fi
-
-    compare_products_names "${check_compare_names}"
-
-    compare_products_sizes "${check_compare_size}"
-
-done
-if [ UPLOAD_REFERENCE_FILE == true ];then
+if [[ "UPLOAD_REFERENCE_FILE" == "true" ]];then
     upload_reference_file
+else
+    for filename in ${OUTPUT_LIST//,/ }
+    do
+        file_stream=$(echo "${filename}" | cut -d ':' -f 1)
+        current_file=$(echo "${filename}" | cut -d ':' -f 2)
+
+        echo "filename: ${filename}"
+        echo "file_stream: ${file_stream}"
+        echo "current_file: ${current_file}"
+
+        if [ -n "${build_platform}" ]; then
+            reference_file=$(echo "${current_file%`echo ${build_platform}`*}${build_platform}${current_file#*`echo ${build_platform}`}")
+        else
+            reference_file=$(echo "${current_file}")
+        fi
+        reference_file="${reference_file//Current/Reference}"
+
+        if [[ "${check_compare_names}" -eq 1  || "${check_compare_size}" -eq 1 ]]; then
+            generate_data_dump
+        else
+            break
+        fi
+
+        compare_products_names "${check_compare_names}"
+
+        compare_products_sizes "${check_compare_size}"
+
+    done
 fi
