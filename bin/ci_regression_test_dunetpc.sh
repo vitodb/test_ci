@@ -319,7 +319,7 @@ function upload_reference_file
 
         if [[ -n $build_identifier ]];then
             local timestamp="-$build_identifier"
-            current_basename=echo "${reference_basename//Reference/Current}" | sed -e "s/$timestamp//g"
+            current_basename=`echo "${reference_basename//Reference/Current}" | sed -e "s/$timestamp//g"`
         fi
 
         #ifdh cp "$current_file" "${REF`ERENCE_FILES//$file_basename}"
