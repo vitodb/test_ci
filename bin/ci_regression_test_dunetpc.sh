@@ -298,6 +298,10 @@ function upload_reference_file
     TASKSTRING="upload reference file"
     ERRORSTRING="W@Reference file missing regenerated@Check for the reference files "
     trap 'LASTERR=$?; FUNCTION_NAME=${FUNCNAME[0]:-main};  exitstatus ${LASTERR} trap; exit ${LASTERR}' ERR
+    #this was used as flag to be able to call this function,putting it back to false let me restore the
+    #normal workflow of the function exitstatus,that can now return the real exit code of this function 
+    UPLOAD_REFERENCE_FILE=false
+
 
     for filename in ${REFERENCE_FILES//,/ }
     do
