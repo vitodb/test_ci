@@ -347,10 +347,7 @@ function exitstatus
         if [ -n "$ERRORSTRING" ];then
             echo "`basename $PWD`@${EXITSTATUS}@$ERRORSTRING" >> $WORKSPACE/data_production_stats.log
         fi
-        if [[ "$UPLOAD_REFERENCE_FILE" == "true" ]];then
-            echo "~~~exceptional exit to zero"
-            exit 0 #if we failed to fetch the reference file,pretend that everything is ok,so we can generate them and then upload
-        else
+        if [[ "$UPLOAD_REFERENCE_FILE" != "true" ]];then #don't exit if the fetch of the reference failed,because we need to produce one and then upload it
             echo "exit in normal exit status"
             exit "${EXITSTATUS}"
         fi
