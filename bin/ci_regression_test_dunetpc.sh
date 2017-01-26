@@ -111,7 +111,7 @@ function fetch_files
         ERRORSTRING="E@Warning in fetching $1 files@Check if the $1 files are available"
     fi
 
-    trap 'LASTERR=$?; FUNCTION_NAME=${FUNCNAME[0]:-main};  exitstatus ${LASTERR} trap ; exit ${LASTERR}' ERR
+    #trap 'LASTERR=$?; FUNCTION_NAME=${FUNCNAME[0]:-main};  exitstatus ${LASTERR} trap ; exit ${LASTERR}' ERR
 
     #trap 'LASTERR=$?; echo -e "\nCI MSG BEGIN\n `basename $0`: error at line ${LINENO}\n Stage: ${STAGE_NAME}\n Task: ${TASKSTRING}\n exit status: ${LASTERR}\nCI MSG END\n"; exit ${LASTERR}' ERR
     echo
@@ -133,14 +133,19 @@ function fetch_files
 
         if [ $? -ne 0 ]; then
             if [ "$1" == "reference" ];then #if it's a
+                echo "~~~ENTERING INTO THE REFERENCE"
                 #skip the error and use something to execute first the data production and then coppy the reference dile on dcache
                 check_data_production=1
                 check_compare_names=0
                 check_compare_size=0
                 #skip the compares because we don't have a reference file
                 UPLOAD_REFERENCE_FILE=true
+                echo "~~~RETTED ALL VARIABLES"
+
                 exitstatus 203
             else
+                echo "~~~ENTERING INTO THE INPUT"
+
                 echo "Failed to fetch $file"
                 exitstatus 211
             fi
