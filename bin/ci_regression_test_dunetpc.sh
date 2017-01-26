@@ -138,7 +138,9 @@ function fetch_files
                 check_compare_names=0
                 check_compare_size=0
                 #skip the compares because we don't have a reference file
-                UPLOAD_REFERENCE_FILE=true
+                #UPLOAD_REFERENCE_FILE=true
+                data_production 1
+                upload_reference_file
             else
                 echo "Failed to fetch $file"
                 exitstatus 211
@@ -191,11 +193,6 @@ function data_production
         done
 
     OUTPUT_LIST=${OUTPUT_LIST//_%#/}
-
-    if [ $UPLOAD_REFERENCE_FILE == true ];then
-        #upload the produced file on the reference folder
-    fi
-
 }
 
 function generate_data_dump
@@ -291,6 +288,41 @@ function compare_products_sizes
     fi
 }
 
+function upload_reference_file
+{
+    TASKSTRING="upload reference file"
+    ERRORSTRING="W@Reference file missing regenerated@Check for the reference files "
+    trap 'LASTERR=$?; FUNCTION_NAME=${FUNCNAME[0]:-main};  exitstatus ${LASTERR} trap; exit ${LASTERR}' ERR
+
+    for filename in ${OUTPUT_LIST//,/ }
+    do
+        file_stream=$(echo "${filename}" | cut -d ':' -f 1)
+        current_file=$(echo "${filename}" | cut -d ':' -f 2)
+
+        if [ -n "${build_platform}" ]
+        then
+            reference_file=$(echo "${current_file%`echo ${build_platform}`*}${build_platform}${current_file#*`echo ${build_platform}`}")
+        else
+            reference_file=$(echo "${current_file}")
+        fi
+        reference_file="${reference_file//Current/Reference}"
+
+        echo "current file: $current_file"
+        echo "reference file: $reference_file"
+
+        local file_basename=`basename $REFERENCE_FILES`
+        #ifdh cp "$current_file" "${REFERENCE_FILES//$file_basename}"
+        echo "ifdh cp $current_file ${REFERENCE_FILES//$file_basename}"
+
+        if [ $? -ne 0 ];then
+            #if the copy fail,let's  consider it failed
+            exitstatus 211
+        fi
+    done
+    #if all the copy are successful,exit in warning
+    exitstatus 203
+}
+
 #~~~~~~~~~~~~~~~~~~~~~~~PRINT AN ERROR MESSAGE IN THE PROGRAM EXIT WITH AN ERROR CODE~~~~~~~~~~~~~~~~
 function exitstatus
 {
@@ -308,6 +340,8 @@ function exitstatus
         exit "${EXITSTATUS}"
     fi
 }
+
+
 
 
 
@@ -348,5 +382,4 @@ do
 
     compare_products_sizes "${check_compare_size}"
 
-    upload_reference_file "${current_file}" "$reference_file"
 done
