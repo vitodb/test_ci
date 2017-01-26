@@ -138,9 +138,7 @@ function fetch_files
                 check_compare_names=0
                 check_compare_size=0
                 #skip the compares because we don't have a reference file
-                #UPLOAD_REFERENCE_FILE=true
-                data_production 1
-                upload_reference_file
+                UPLOAD_REFERENCE_FILE=true
             else
                 echo "Failed to fetch $file"
                 exitstatus 211
@@ -294,24 +292,30 @@ function upload_reference_file
     ERRORSTRING="W@Reference file missing regenerated@Check for the reference files "
     trap 'LASTERR=$?; FUNCTION_NAME=${FUNCNAME[0]:-main};  exitstatus ${LASTERR} trap; exit ${LASTERR}' ERR
 
-    for filename in ${OUTPUT_LIST//,/ }
+    for filename in ${REFERENCE_FILES//,/ }
     do
-        file_stream=$(echo "${filename}" | cut -d ':' -f 1)
-        current_file=$(echo "${filename}" | cut -d ':' -f 2)
+        #file_stream=$(echo "${filename}" | cut -d ':' -f 1)
+        #current_file=$(echo "${filename}" | cut -d ':' -f 2)
 
-        if [ -n "${build_platform}" ]
-        then
-            reference_file=$(echo "${current_file%`echo ${build_platform}`*}${build_platform}${current_file#*`echo ${build_platform}`}")
-        else
-            reference_file=$(echo "${current_file}")
+        #if [ -n "${build_platform}" ]
+        #then
+        #    reference_file=$(echo "${current_file%`echo ${build_platform}`*}${build_platform}${current_file#*`echo ${build_platform}`}")
+        #else
+        #    reference_file=$(echo "${current_file}")
+        #fi
+        #reference_file="${reference_file//Current/Reference}"
+
+        #echo "current file: $current_file"
+        #echo "reference file: $reference_file"
+
+        local reference_basename=`basename $REFERENCE_FILES`
+
+        if [[ -n $build_identifier ]];then
+            local timestamp="-$build_identifier"
+            current_basename=echo "${reference_basename//Reference/Current}" | sed -e "s/$timestamp//g"
         fi
-        reference_file="${reference_file//Current/Reference}"
 
-        echo "current file: $current_file"
-        echo "reference file: $reference_file"
-
-        local file_basename=`basename $REFERENCE_FILES`
-        #ifdh cp "$current_file" "${REFERENCE_FILES//$file_basename}"
+        #ifdh cp "$current_file" "${REF`ERENCE_FILES//$file_basename}"
         echo "ifdh cp $current_file ${REFERENCE_FILES//$file_basename}"
 
         if [ $? -ne 0 ];then
@@ -383,3 +387,6 @@ do
     compare_products_sizes "${check_compare_size}"
 
 done
+if [ UPLOAD_REFERENCE_FILE == true ];then
+    upload_reference_file
+fi
