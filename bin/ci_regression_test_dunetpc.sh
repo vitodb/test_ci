@@ -111,7 +111,7 @@ function fetch_files
         ERRORSTRING="E@Warning in fetching $1 files@Check if the $1 files are available"
     fi
 
-    #trap 'LASTERR=$?; FUNCTION_NAME=${FUNCNAME[0]:-main};  exitstatus ${LASTERR} trap ; exit ${LASTERR}' ERR
+    trap 'LASTERR=$?; FUNCTION_NAME=${FUNCNAME[0]:-main};  exitstatus ${LASTERR} trap ; exit ${LASTERR}' ERR
 
     #trap 'LASTERR=$?; echo -e "\nCI MSG BEGIN\n `basename $0`: error at line ${LINENO}\n Stage: ${STAGE_NAME}\n Task: ${TASKSTRING}\n exit status: ${LASTERR}\nCI MSG END\n"; exit ${LASTERR}' ERR
     echo
@@ -139,6 +139,7 @@ function fetch_files
                 check_compare_size=0
                 #skip the compares because we don't have a reference file
                 UPLOAD_REFERENCE_FILE=true
+                exitstatus 203
             else
                 echo "Failed to fetch $file"
                 exitstatus 211
@@ -341,7 +342,11 @@ function exitstatus
         if [ -n "$ERRORSTRING" ];then
             echo "`basename $PWD`@${EXITSTATUS}@$ERRORSTRING" >> $WORKSPACE/data_production_stats.log
         fi
-        exit "${EXITSTATUS}"
+        if [[ $UPLOAD_REFERENCE_FILE == true ]];then\
+            exit 0 #if we failed to fetch the reference file,pretend that everything is ok,so we can generate them and then upload
+        else
+            exit "${EXITSTATUS}"
+        fi
     fi
 }
 
