@@ -130,8 +130,9 @@ function fetch_files
         echo "Copying: " $file
         echo "Command: ifdh cp $file ./"
         ifdh cp $file ./
+        local copy_exit_code=$?
 
-        if [ $? -ne 0 ]; then
+        if [[ $copy_exit_code -ne 0 ]]; then
             if [ "$1" == "reference" ];then #if it's a
                 echo "~~~ENTERING INTO THE REFERENCE"
                 #skip the error and use something to execute first the data production and then coppy the reference dile on dcache
@@ -155,7 +156,7 @@ function fetch_files
     if [[ "$UPLOAD_REFERENCE_FILE" == "true" ]];then
         exitstatus 203
     else
-        exitstatus $?
+        exitstatus $copy_exit_code
     fi
     TASKSTRING="$old_taskstring"
     ERRORSTRING="$old_errorstring"
