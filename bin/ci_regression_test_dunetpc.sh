@@ -141,8 +141,6 @@ function fetch_files
                 #skip the compares because we don't have a reference file
                 UPLOAD_REFERENCE_FILE=true
                 echo "~~~RETTED ALL VARIABLES"
-
-                exitstatus 203
             else
                 echo "~~~ENTERING INTO THE INPUT"
 
@@ -150,13 +148,15 @@ function fetch_files
                 exitstatus 211
             fi
         fi
-
     done
 
     export IFDH_DEBUG=$debug_backup
     export IFDH_CP_MAXRETRIES=$maxretries_backup
-
-    exitstatus $?
+    if [[ "$UPLOAD_REFERENCE_FILE" == "true" ]];then
+        exitstatus 203
+    else
+        exitstatus $?
+    fi
     TASKSTRING="$old_taskstring"
     ERRORSTRING="$old_errorstring"
 }
@@ -322,7 +322,7 @@ function upload_reference_file
         fi
 
         #ifdh cp "$current_file" "${REF`ERENCE_FILES//$file_basename}"
-        echo "ifdh cp $current_file ${REFERENCE_FILES//$file_basename}"
+        echo "ifdh cp $current_basename ${REFERENCE_FILES}"
 
         if [ $? -ne 0 ];then
             #if the copy fail,let's  consider it failed
