@@ -23,7 +23,7 @@ EOF
 function initialize
 {
     TASKSTRING="initialize"
-    ERRORSTRING="E@Error initializing the test@Check the log"
+    ERRORSTRING="E@Error initializing the test"
     trap 'LASTERR=$?; FUNCTION_NAME=${FUNCNAME[0]:-main};  exitstatus ${LASTERR} trap; exit ${LASTERR}' ERR
     #trap 'LASTERR=$?; echo -e "\nCI MSG BEGIN\n `basename $0`: error at line ${LINENO}\n Stage: ${STAGE_NAME}\n Task: ${TASKSTRING}\n exit status: ${LASTERR}\nCI MSG END\n"; exit ${LASTERR}' ERR
 
@@ -106,9 +106,9 @@ function fetch_files
     old_errorstring="$ERRORSTRING"
     TASKSTRING="fetching $1 files"
     if [ "$1" == "reference" ];then
-        ERRORSTRING="E@Warning in fetching $1 files@Check if we generated new $1 files"
+        ERRORSTRING="W@Warning in fetching $1 files@We tried to upload the $1 file on your reference folder directory"
     elif [ "$1" == "input" ];then
-        ERRORSTRING="E@Warning in fetching $1 files@Check if the $1 files are available"
+        ERRORSTRING="W@Warning in fetching $1 files@Check if the $1 files are available in your input dile directory"
     fi
 
     trap 'LASTERR=$?; FUNCTION_NAME=${FUNCNAME[0]:-main};  exitstatus ${LASTERR} trap ; exit ${LASTERR}' ERR
@@ -132,17 +132,8 @@ function fetch_files
         ifdh cp $file ./
 
         if [ $? -ne 0 ]; then
-            if [ "$1" == "reference" ];then #if it's a
-                #skip the error and use something to execute first the data production and then coppy the reference dile on dcache
-                check_data_production=1
-                check_compare_names=0
-                check_compare_size=0
-                #skip the compares because we don't have a reference file
-                UPLOAD_REFERENCE_FILE=true
-            else
-                echo "Failed to fetch $file"
-                exitstatus 211
-            fi
+            echo "Failed to fetch $file"
+            exitstatus 203
         fi
 
     done
@@ -159,7 +150,7 @@ function fetch_files
 function data_production
 {
     TASKSTRING="data_production"
-    ERRORSTRING="E@Error in data production@Check the log"
+    ERRORSTRING="E@Error in data production"
     trap 'LASTERR=$?; FUNCTION_NAME=${FUNCNAME[0]:-main};  exitstatus ${LASTERR} trap; exit ${LASTERR}' ERR
 
     #trap 'LASTERR=$?; echo -e "\nCI MSG BEGIN\n `basename $0`: error at line ${LINENO}\n Stage: ${STAGE_NAME}\n Task: ${TASKSTRING}\n exit status: ${LASTERR}\nCI MSG END\n"; exit ${LASTERR}' ERR
@@ -192,16 +183,12 @@ function data_production
 
     OUTPUT_LIST=${OUTPUT_LIST//_%#/}
 
-    if [ $UPLOAD_REFERENCE_FILE == true ];then
-        #upload the produced file on the reference folder
-    fi
-
 }
 
 function generate_data_dump
 {
     TASKSTRING="generate_data_dump for ${file_stream} output stream"
-    ERRORSTRING="E@Error during dump Generation@Check the log"
+    ERRORSTRING="E@Error during dump Generation"
 
     trap 'LASTERR=$?; FUNCTION_NAME=${FUNCNAME[0]:-main};  exitstatus ${LASTERR} trap; exit ${LASTERR}' ERR
     #trap 'LASTERR=$?; echo -e "\nCI MSG BEGIN\n `basename $0`: error at line ${LINENO}\n Stage: ${STAGE_NAME}\n Task: ${TASKSTRING}\n exit status: ${LASTERR}\nCI MSG END\n"; exit ${LASTERR}' ERR
@@ -237,7 +224,7 @@ function generate_data_dump
 function compare_products_names
 {
     TASKSTRING="compare_products_names for ${file_stream} output stream"
-    ERRORSTRING="W@Differences in products names@Request new reference files"
+    ERRORSTRING="W@Differences in products names@Please consider to request a new set of reference files"
 
     if [[ "$1" -eq 1 ]]
     then
@@ -265,7 +252,7 @@ function compare_products_names
 function compare_products_sizes
 {
     TASKSTRING="compare_products_sizes for ${file_stream} output stream"
-    ERRORSTRING="W@Differences in products sizes@Request new reference files"
+    ERRORSTRING="W@Differences in products sizes@Please consider to request a new set of reference files"
 
 
     if [[ "${1}" -eq 1 ]]
@@ -347,6 +334,4 @@ do
     compare_products_names "${check_compare_names}"
 
     compare_products_sizes "${check_compare_size}"
-
-    upload_reference_file "${current_file}" "$reference_file"
 done
