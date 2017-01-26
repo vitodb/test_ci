@@ -367,7 +367,7 @@ initialize $@
 data_production "${check_data_production}"
 
 #~~~~~~~~~~~~~~~~PROCESS ALL THE FILES DECLARED INTO THE OUTPUT LIST~~~~~~~~~~~~~~~~~
-if [[ "UPLOAD_REFERENCE_FILE" == "true" ]];then
+if [[ "$UPLOAD_REFERENCE_FILE" == "true" ]];then
     upload_reference_file
 else
     for filename in ${OUTPUT_LIST//,/ }
