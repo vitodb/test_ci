@@ -351,7 +351,7 @@ function exitstatus
         echo -e "\nCI MSG BEGIN\n Stage: ${STAGE_NAME}\n Task: ${TASKSTRING}\n exit status: ${EXITSTATUS}\nCI MSG END\n"
     fi
     #don't exit if the fetch of the reference failed,because we need to produce one and then upload it
-    if [[ "${EXITSTATUS}" -ne 0 -a "$UPLOAD_REFERENCE_FILE" != "true" ]] ; then
+    if [[ "${EXITSTATUS}" -ne 0 ]] && [[ "$UPLOAD_REFERENCE_FILE" != "true" ]] ; then
         if [[ -n "$ERRORSTRING" ]];then
             echo "`basename $PWD`@${EXITSTATUS}@$ERRORSTRING" >> $WORKSPACE/data_production_stats.log
         fi
