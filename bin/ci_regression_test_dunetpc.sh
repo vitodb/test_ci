@@ -240,7 +240,7 @@ function generate_data_dump
 function compare_products_names
 {
     TASKSTRING="compare_products_names for ${file_stream} output stream"
-    ERRORSTRING="W@Differences in products names@Request new reference files"
+    ERRORSTRING="W@Error comparing products names@check the log"
 
     if [[ "$1" -eq 1 ]]
     then
@@ -252,9 +252,10 @@ function compare_products_names
 
         echo -e "\nCheck for added/removed data products"
         echo -e "difference(s)\n"
-        #~~~~~~~~~~~~~~~IF THERE'S A DIFFERENCE EXIT WITH ERROR CODE 200~~~~~~~~~~~~~~~
+        #~~~~~~~~~~~~~~~IF THERE'S A DIFFERENCE EXIT WITH ERROR CODE 201~~~~~~~~~~~~~~~
         if [[ "${STATUS}" -ne 0  ]]; then
             echo "${DIFF}"
+            ERRORSTRING="W@Differences in products names@Request new reference files"
             exitstatus 201
         else
             echo -e "none\n\n"
@@ -268,7 +269,7 @@ function compare_products_names
 function compare_products_sizes
 {
     TASKSTRING="compare_products_sizes for ${file_stream} output stream"
-    ERRORSTRING="W@Differences in products sizes@Request new reference files"
+    ERRORSTRING="E@Error comparing product sizes@Check the log"
 
 
     if [[ "${1}" -eq 1 ]]
@@ -281,9 +282,10 @@ function compare_products_sizes
         echo -e "\nCheck for differences in the size of data products"
         echo -e "difference(s)\n"
 
-        #~~~~~~~~~~~~~~~IF THERE'S A DIFFERENCE EXIT WITH ERROR CODE 201 ~~~~~~~~~~~~~~~~~~~~~~~
+        #~~~~~~~~~~~~~~~IF THERE'S A DIFFERENCE EXIT WITH ERROR CODE 202 ~~~~~~~~~~~~~~~~~~~~~~~
         if [[ "${STATUS}" -ne 0 ]]; then
             echo "${DIFF}"
+            ERRORSTRING="W@Differences in products sizes@Request new reference files"
             exitstatus 202
         else
             echo -e "none\n\n"
@@ -318,7 +320,7 @@ function upload_reference_file
 
         #ifdh cp "$current_file" "${REF`ERENCE_FILES//$file_basename}"
         echo "ifdh cp $current_basename ${REFERENCE_FILES}"
-        false
+
         if [ $? -ne 0 ];then
             #if the copy fail,let's  consider it failed
             exitstatus 211
