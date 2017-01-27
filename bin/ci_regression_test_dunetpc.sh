@@ -6,17 +6,17 @@ function usage {
    usage: $0 [options]
       running CI tests for ${proj_PREFIX}_ci.
    options:
-      --executable  Define the executable to run
-      --nevents     Define the number of events to process
-      --stage       Define the stage number used to parse the right testmask column number
-      --fhicl       Set the FHiCl file to use to run the test
-      --input       Set the file on which you want to run the test
-      --outputs     Define a list of couple <output_stream>:<output_filename> using "," as separator
-      --stage-name  Define the name of the test
-      --testmask    Define the name of the testmask file
-      --update-ref-files Flag to activate the "Update Reference Files" mode
-      --input-files
-      --reference-files
+      --executable          Define the executable to run
+      --nevents             Define the number of events to process
+      --stage               Define the stage number used to parse the right testmask column number
+      --fhicl               Set the FHiCl file to use to run the test
+      --input               Set the file on which you want to run the test
+      --outputs             Define a list of couple <output_stream>:<output_filename> using "," as separator
+      --stage-name          Define the name of the test
+      --testmask            Define the name of the testmask file
+      --update-ref-files    Flag to activate the "Update Reference Files" mode
+      --input-files         List of input files to be downloaded before to execute the data production
+      --reference-files     List of reference files to be downloaded before the product comparison
 EOF
 }
 
