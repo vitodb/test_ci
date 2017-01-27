@@ -141,6 +141,7 @@ function fetch_files
                 check_compare_size=0
                 #skip the compares because we don't have a reference file
                 UPLOAD_REFERENCE_FILE=true
+                unlocated_reference_files="$unlocated_reference_files $file"
                 echo "~~~RETTED ALL VARIABLES"
             else
                 echo "~~~ENTERING INTO THE INPUT"
@@ -299,11 +300,11 @@ function upload_reference_file
     ERRORSTRING="W@Reference file missing regenerated@Check for the reference files "
     trap 'LASTERR=$?; FUNCTION_NAME=${FUNCNAME[0]:-main};  exitstatus ${LASTERR} trap; exit ${LASTERR}' ERR
     #this was used as flag to be able to call this function,putting it back to false let me restore the
-    #normal workflow of the function exitstatus,that can now return the real exit code of this function 
+    #normal workflow of the function exitstatus,that can now return the real exit code of this function
     UPLOAD_REFERENCE_FILE=false
 
 
-    for filename in ${REFERENCE_FILES//,/ }
+    for filename in ${unlocated_reference_files}
     do
         #file_stream=$(echo "${filename}" | cut -d ':' -f 1)
         #current_file=$(echo "${filename}" | cut -d ':' -f 2)
@@ -319,7 +320,9 @@ function upload_reference_file
         #echo "current file: $current_file"
         #echo "reference file: $reference_file"
 
+        echo "~~~this is the filename: $filename"
         local reference_basename=`basename $REFERENCE_FILES`
+        echo "this is the reference_basename: $reference_basename"
 
         if [[ -n $build_identifier ]];then
             local timestamp="-$build_identifier"
@@ -347,15 +350,12 @@ function exitstatus
     else
         echo -e "\nCI MSG BEGIN\n Stage: ${STAGE_NAME}\n Task: ${TASKSTRING}\n exit status: ${EXITSTATUS}\nCI MSG END\n"
     fi
-
-    if [[ "${EXITSTATUS}" -ne 0 ]]; then
-        if [ -n "$ERRORSTRING" ];then
+    #don't exit if the fetch of the reference failed,because we need to produce one and then upload it
+    if [[ "${EXITSTATUS}" -ne 0 -a "$UPLOAD_REFERENCE_FILE" != "true" ]] ; then
+        if [[ -n "$ERRORSTRING" ]];then
             echo "`basename $PWD`@${EXITSTATUS}@$ERRORSTRING" >> $WORKSPACE/data_production_stats.log
         fi
-        if [[ "$UPLOAD_REFERENCE_FILE" != "true" ]];then #don't exit if the fetch of the reference failed,because we need to produce one and then upload it
-            echo "exit in normal exit status"
-            exit "${EXITSTATUS}"
-        fi
+        exit "${EXITSTATUS}"
     fi
 }
 
