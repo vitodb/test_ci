@@ -297,7 +297,7 @@ function compare_products_sizes
 function upload_reference_file
 {
     TASKSTRING="upload reference file"
-    ERRORSTRING="E@Generating missing Reference file@Check for the reference files "
+    ERRORSTRING="E@Failed Generating Reference file/s@Check for the reference files "
     trap 'LASTERR=$?; FUNCTION_NAME=${FUNCNAME[0]:-main};  exitstatus ${LASTERR} trap; exit ${LASTERR}' ERR
     #this was used as flag to be able to call this function,putting it back to false let me restore the
     #normal workflow of the function exitstatus,that can now return the real exit code of this function
@@ -306,20 +306,6 @@ function upload_reference_file
 
     for filename in ${unlocated_reference_files}
     do
-        #file_stream=$(echo "${filename}" | cut -d ':' -f 1)
-        #current_file=$(echo "${filename}" | cut -d ':' -f 2)
-
-        #if [ -n "${build_platform}" ]
-        #then
-        #    reference_file=$(echo "${current_file%`echo ${build_platform}`*}${build_platform}${current_file#*`echo ${build_platform}`}")
-        #else
-        #    reference_file=$(echo "${current_file}")
-        #fi
-        #reference_file="${reference_file//Current/Reference}"
-
-        #echo "current file: $current_file"
-        #echo "reference file: $reference_file"
-
         echo "~~~this is the filename: $filename"
         local reference_basename=`basename $REFERENCE_FILES`
         echo "this is the reference_basename: $reference_basename"
