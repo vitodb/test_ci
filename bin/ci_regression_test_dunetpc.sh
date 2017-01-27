@@ -332,14 +332,14 @@ function upload_reference_file
 
         #ifdh cp "$current_file" "${REF`ERENCE_FILES//$file_basename}"
         echo "ifdh cp $current_basename ${REFERENCE_FILES}"
-
+        false
         if [ $? -ne 0 ];then
             #if the copy fail,let's  consider it failed
             exitstatus 211
         fi
     done
     #if all the copy are successful,exit in warning
-    ERRORSTRING="W@Generating missing Reference file@Check for the reference files"
+    ERRORSTRING="W@Generated missing Reference file/s@Check for the reference files"
     exitstatus 203
 }
 
