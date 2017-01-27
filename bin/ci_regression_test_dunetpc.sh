@@ -297,7 +297,7 @@ function compare_products_sizes
 function upload_reference_file
 {
     TASKSTRING="upload reference file"
-    ERRORSTRING="W@Generating missing Reference file@Check for the reference files "
+    ERRORSTRING="E@Generating missing Reference file@Check for the reference files "
     trap 'LASTERR=$?; FUNCTION_NAME=${FUNCNAME[0]:-main};  exitstatus ${LASTERR} trap; exit ${LASTERR}' ERR
     #this was used as flag to be able to call this function,putting it back to false let me restore the
     #normal workflow of the function exitstatus,that can now return the real exit code of this function
@@ -339,6 +339,7 @@ function upload_reference_file
         fi
     done
     #if all the copy are successful,exit in warning
+    ERRORSTRING="W@Generating missing Reference file@Check for the reference files"
     exitstatus 203
 }
 
