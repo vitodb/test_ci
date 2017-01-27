@@ -297,7 +297,7 @@ function compare_products_sizes
 function upload_reference_file
 {
     TASKSTRING="upload reference file"
-    ERRORSTRING="W@Reference file missing regenerated@Check for the reference files "
+    ERRORSTRING="W@Generating missing Reference file@Check for the reference files "
     trap 'LASTERR=$?; FUNCTION_NAME=${FUNCNAME[0]:-main};  exitstatus ${LASTERR} trap; exit ${LASTERR}' ERR
     #this was used as flag to be able to call this function,putting it back to false let me restore the
     #normal workflow of the function exitstatus,that can now return the real exit code of this function
@@ -324,11 +324,11 @@ function upload_reference_file
         local reference_basename=`basename $REFERENCE_FILES`
         echo "this is the reference_basename: $reference_basename"
 
-        #if [[ -n $build_identifier ]];then
+        if [[ -n $build_identifier ]];then
             current_basename=`echo "${reference_basename//Reference/Current}" | sed -e "s/$build_identifier//g"`
-        #else
-            #current_basename=`echo "${reference_basename//Reference/Current}" | sed -e "s/$build_identifier//g"`
-        #fi
+        else
+            current_basename="${reference_basename//Reference/Current}"
+        fi
 
         #ifdh cp "$current_file" "${REF`ERENCE_FILES//$file_basename}"
         echo "ifdh cp $current_basename ${REFERENCE_FILES}"
