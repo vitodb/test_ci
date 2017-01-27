@@ -324,10 +324,11 @@ function upload_reference_file
         local reference_basename=`basename $REFERENCE_FILES`
         echo "this is the reference_basename: $reference_basename"
 
-        if [[ -n $build_identifier ]];then
-            local timestamp="-$build_identifier"
-            current_basename=`echo "${reference_basename//Reference/Current}" | sed -e "s/$timestamp//g"`
-        fi
+        #if [[ -n $build_identifier ]];then
+            current_basename=`echo "${reference_basename//Reference/Current}" | sed -e "s/$build_identifier//g"`
+        #else
+            #current_basename=`echo "${reference_basename//Reference/Current}" | sed -e "s/$build_identifier//g"`
+        #fi
 
         #ifdh cp "$current_file" "${REF`ERENCE_FILES//$file_basename}"
         echo "ifdh cp $current_basename ${REFERENCE_FILES}"
