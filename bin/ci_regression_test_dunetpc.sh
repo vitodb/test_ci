@@ -45,19 +45,19 @@ function initialize
     while :
     do
       case "x$1" in
-      x-h|x--help)         usage;                                                       exit;;
-      x--executable)       EXECUTABLE_NAME="${2}";                                      shift; shift;;
-      x--nevents)          NEVENTS="${2}";                                              shift; shift;;
-      x--stage)            STAGE="${2}";                                                shift; shift;;
-      x--fhicl)            FHiCL_FILE="${2}";                                           shift; shift;;
-      x--input)            INPUT_FILE="${2}";                                           shift; shift;;
-      x--outputs)          OUTPUT_LIST="${2}"; OUTPUT_STREAM="${OUTPUT_LIST//,/ -o }";  shift; shift;;
-      x--stage-name)       STAGE_NAME="${2}";                                           shift; shift;;
-      x--testmask)         TESTMASK="${2}";                                             shift; shift;;
-      x--input-files)      INPUT_FILES="${2}";                                          shift; shift;;
-      x--reference-files)  REFERENCE_FILES="${2}";                                      shift; shift;;
-      x--update-ref-files) UPDATE_REF_FILE_ON=1;                                        shift;;
-      x--self-update)      SELF_UPDATE=1;                                               shift;;
+      x-h|x--help)               usage;                                                       exit;;
+      x--executable)             EXECUTABLE_NAME="${2}";                                      shift; shift;;
+      x--nevents)                NEVENTS="${2}";                                              shift; shift;;
+      x--stage)                  STAGE="${2}";                                                shift; shift;;
+      x--fhicl)                  FHiCL_FILE="${2}";                                           shift; shift;;
+      x--input)                  INPUT_FILE="${2}";                                           shift; shift;;
+      x--outputs)                OUTPUT_LIST="${2}"; OUTPUT_STREAM="${OUTPUT_LIST//,/ -o }";  shift; shift;;
+      x--stage-name)             STAGE_NAME="${2}";                                           shift; shift;;
+      x--testmask)               TESTMASK="${2}";                                             shift; shift;;
+      x--input-files)            INPUT_FILES="${2}";                                          shift; shift;;
+      x--reference-files)        REFERENCE_FILES="${2}";                                      shift; shift;;
+      x--update-ref-files)       UPDATE_REF_FILE_ON=1;                                        shift;;
+      x--self-update-ref-files)  SELF_UPDATE_REF_FILES=1;                                     shift;;
       x)                                                                                break;;
       x*)            echo "Unknown argument $1"; usage; exit 1;;
       esac
@@ -82,9 +82,9 @@ function initialize
 
     #~~~~~~~~~~~~~~~~~~~~~PARSE THE TESTMASK FILE TO UNDERSTAND WHICH FUNCTION TO RUN ~~~~~~~~~~~~
     if [ -n "${TESTMASK}" ];then
-        check_data_production=$(sed -n '1p' ${TESTMASK} | cut -d ' ' -f ${STAGE})
-        check_compare_names=$(sed -n '2p' ${TESTMASK} | cut -d ' ' -f ${STAGE})
-        check_compare_size=$(sed -n '3p' ${TESTMASK} | cut -d ' ' -f ${STAGE})
+        check_data_production=${TESTMASK:0:1}
+        check_compare_names=${TESTMASK:1:1}
+        check_compare_size=${TESTMASK:2:2}
     else
         check_data_production=1
         check_compare_names=0
@@ -94,6 +94,7 @@ function initialize
     echo "Input file:  ${INPUT_FILE}"
     echo "Output files: ${OUTPUT_LIST}"
     echo "FHiCL file:  ${FHiCL_FILE}"
+    echo "Testmask: ${TESTMASK}"
     echo
     echo -e "\nRunning\n `basename $0` $@"
 
@@ -126,7 +127,7 @@ function fetch_files
         local copy_exit_code=$?
 
         if [[ $copy_exit_code -ne 0 ]]; then
-            if [ "$1" == "reference" ] && [ "$SELF_UPDATE" -eq 1 ];then
+            if [ "$1" == "reference" ] && [ "$SELF_UPDATE_REF_FILES" -eq 1 ];then
                 #skip the error and use something to execute first the data production and then coppy the reference dile on dcache
                 check_data_production=1
                 check_compare_names=0
