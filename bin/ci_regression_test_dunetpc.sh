@@ -82,9 +82,12 @@ function initialize
 
     #~~~~~~~~~~~~~~~~~~~~~PARSE THE TESTMASK FILE TO UNDERSTAND WHICH FUNCTION TO RUN ~~~~~~~~~~~~
     if [ -n "${TESTMASK}" ];then
-        check_data_production=$(sed -n '1p' ${TESTMASK} | cut -d ' ' -f ${STAGE})
-        check_compare_names=$(sed -n '2p' ${TESTMASK} | cut -d ' ' -f ${STAGE})
-        check_compare_size=$(sed -n '3p' ${TESTMASK} | cut -d ' ' -f ${STAGE})
+        check_data_production=${TESTMASK:0:1}
+        check_compare_names=${TESTMASK:1:1}
+        check_compare_size=${TESTMASK:2:2}
+        #check_data_production=$(sed -n '1p' ${TESTMASK} | cut -d ' ' -f ${STAGE})
+        #check_compare_names=$(sed -n '2p' ${TESTMASK} | cut -d ' ' -f ${STAGE})
+        #check_compare_size=$(sed -n '3p' ${TESTMASK} | cut -d ' ' -f ${STAGE})
     else
         check_data_production=1
         check_compare_names=0
