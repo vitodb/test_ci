@@ -23,7 +23,7 @@ EOF
 function initialize
 {
     TASKSTRING="initialize"
-    ERRORSTRING="E@Error initializing the test"
+    ERRORSTRING="E@Error initializing the test@Check the log"
     trap 'LASTERR=$?; FUNCTION_NAME=${FUNCNAME[0]:-main};  exitstatus ${LASTERR} trap; exit ${LASTERR}' ERR
     #trap 'LASTERR=$?; echo -e "\nCI MSG BEGIN\n `basename $0`: error at line ${LINENO}\n Stage: ${STAGE_NAME}\n Task: ${TASKSTRING}\n exit status: ${LASTERR}\nCI MSG END\n"; exit ${LASTERR}' ERR
 
@@ -106,9 +106,9 @@ function fetch_files
     old_errorstring="$ERRORSTRING"
     TASKSTRING="fetching $1 files"
     if [ "$1" == "reference" ];then
-        ERRORSTRING="W@Warning in fetching $1 files@We tried to upload the $1 file on your reference folder directory"
+        ERRORSTRING="E@Warning in fetching $1 files@Check if we generated new $1 files"
     elif [ "$1" == "input" ];then
-        ERRORSTRING="W@Warning in fetching $1 files@Check if the $1 files are available in your input dile directory"
+        ERRORSTRING="E@Warning in fetching $1 files@Check if the $1 files are available"
     fi
 
     trap 'LASTERR=$?; FUNCTION_NAME=${FUNCNAME[0]:-main};  exitstatus ${LASTERR} trap ; exit ${LASTERR}' ERR
@@ -133,7 +133,7 @@ function fetch_files
 
         if [ $? -ne 0 ]; then
             echo "Failed to fetch $file"
-            exitstatus 203
+            exitstatus 211
         fi
 
     done
@@ -150,7 +150,7 @@ function fetch_files
 function data_production
 {
     TASKSTRING="data_production"
-    ERRORSTRING="E@Error in data production"
+    ERRORSTRING="E@Error in data production@Check the log"
     trap 'LASTERR=$?; FUNCTION_NAME=${FUNCNAME[0]:-main};  exitstatus ${LASTERR} trap; exit ${LASTERR}' ERR
 
     #trap 'LASTERR=$?; echo -e "\nCI MSG BEGIN\n `basename $0`: error at line ${LINENO}\n Stage: ${STAGE_NAME}\n Task: ${TASKSTRING}\n exit status: ${LASTERR}\nCI MSG END\n"; exit ${LASTERR}' ERR
@@ -188,7 +188,7 @@ function data_production
 function generate_data_dump
 {
     TASKSTRING="generate_data_dump for ${file_stream} output stream"
-    ERRORSTRING="E@Error during dump Generation"
+    ERRORSTRING="E@Error during dump Generation@Check the log"
 
     trap 'LASTERR=$?; FUNCTION_NAME=${FUNCNAME[0]:-main};  exitstatus ${LASTERR} trap; exit ${LASTERR}' ERR
     #trap 'LASTERR=$?; echo -e "\nCI MSG BEGIN\n `basename $0`: error at line ${LINENO}\n Stage: ${STAGE_NAME}\n Task: ${TASKSTRING}\n exit status: ${LASTERR}\nCI MSG END\n"; exit ${LASTERR}' ERR
@@ -224,7 +224,7 @@ function generate_data_dump
 function compare_products_names
 {
     TASKSTRING="compare_products_names for ${file_stream} output stream"
-    ERRORSTRING="W@Differences in products names@Please consider to request a new set of reference files"
+    ERRORSTRING="W@Differences in products names@Request new reference files"
 
     if [[ "$1" -eq 1 ]]
     then
@@ -252,7 +252,7 @@ function compare_products_names
 function compare_products_sizes
 {
     TASKSTRING="compare_products_sizes for ${file_stream} output stream"
-    ERRORSTRING="W@Differences in products sizes@Please consider to request a new set of reference files"
+    ERRORSTRING="W@Differences in products sizes@Request new reference files"
 
 
     if [[ "${1}" -eq 1 ]]
