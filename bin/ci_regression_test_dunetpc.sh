@@ -17,6 +17,7 @@ function usage {
       --update-ref-files    Flag to activate the "Update Reference Files" mode
       --input-files         List of input files to be downloaded before to execute the data production
       --reference-files     List of reference files to be downloaded before the product comparison
+      --self-update         Automatically upload the reference file,if the reference file linked to a test is missing
 EOF
 }
 
@@ -57,6 +58,7 @@ function initialize
       x--input-files)      INPUT_FILES="${2}";                                          shift; shift;;
       x--reference-files)  REFERENCE_FILES="${2}";                                      shift; shift;;
       x--update-ref-files) UPDATE_REF_FILE_ON=1;                                        shift;;
+      x--self-update)      SELF_UPDATE=1                                                shift;;
       x)                                                                                break;;
       x*)            echo "Unknown argument $1"; usage; exit 1;;
       esac
@@ -133,7 +135,7 @@ function fetch_files
         local copy_exit_code=$?
 
         if [[ $copy_exit_code -ne 0 ]]; then
-            if [ "$1" == "reference" ];then #if it's a
+            if [ "$1" == "reference" ] && [ "$SELF_UPDATE" -eq 1 ];then #if it's a
                 echo "~~~ENTERING INTO THE REFERENCE"
                 #skip the error and use something to execute first the data production and then coppy the reference dile on dcache
                 check_data_production=1
@@ -142,7 +144,7 @@ function fetch_files
                 #skip the compares because we don't have a reference file
                 UPLOAD_REFERENCE_FILE=true
                 unlocated_reference_files="$unlocated_reference_files $file"
-                echo "~~~RETTED ALL VARIABLES"
+                echo "~~~SETTED ALL VARIABLES"
             else
                 echo "~~~ENTERING INTO THE INPUT"
 
