@@ -58,7 +58,7 @@ function initialize
       x--input-files)      INPUT_FILES="${2}";                                          shift; shift;;
       x--reference-files)  REFERENCE_FILES="${2}";                                      shift; shift;;
       x--update-ref-files) UPDATE_REF_FILE_ON=1;                                        shift;;
-      x--self-update)      SELF_UPDATE=1                                                shift;;
+      x--self-update)      SELF_UPDATE=1;                                               shift;;
       x)                                                                                break;;
       x*)            echo "Unknown argument $1"; usage; exit 1;;
       esac
