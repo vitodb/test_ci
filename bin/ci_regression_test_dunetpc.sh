@@ -95,10 +95,12 @@ function initialize
         check_compare_names=0
         check_compare_size=0
     fi
+    echo "check_data_production=${TESTMASK:0:1} check_compare_names=${TESTMASK:1:1} check_compare_size=${TESTMASK:2:2}"
 
     echo "Input file:  ${INPUT_FILE}"
     echo "Output files: ${OUTPUT_LIST}"
     echo "FHiCL file:  ${FHiCL_FILE}"
+    echo "Testmask: ${TESTMASK}"
     echo
     echo -e "\nRunning\n `basename $0` $@"
 
