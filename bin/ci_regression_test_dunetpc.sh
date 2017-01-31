@@ -319,7 +319,7 @@ function upload_reference_file
         fi
 
         #ifdh cp "$current_file" "${REF`ERENCE_FILES//$file_basename}"
-        echo "ifdh cp $current_basename ${REFERENCE_FILES}"
+        ifdh cp "$current_basename" "${filename}"
 
         if [ $? -ne 0 ];then
             #if the copy fail,let's  consider it failed
