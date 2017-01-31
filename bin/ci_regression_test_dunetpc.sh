@@ -26,7 +26,6 @@ function initialize
     TASKSTRING="initialize"
     ERRORSTRING="E@Error initializing the test@Check the log"
     trap 'LASTERR=$?; FUNCTION_NAME=${FUNCNAME[0]:-main};  exitstatus ${LASTERR} trap ${LINENO}; exit ${LASTERR}' ERR
-    #trap 'LASTERR=$?; echo -e "\nCI MSG BEGIN\n `basename $0`: error at line ${LINENO}\n Stage: ${STAGE_NAME}\n Task: ${TASKSTRING}\n exit status: ${LASTERR}\nCI MSG END\n"; exit ${LASTERR}' ERR
 
     echo "running CI tests for ${proj_PREFIX}_ci."
     echo
@@ -107,16 +106,9 @@ function fetch_files
     old_taskstring="$TASKSTRING"
     old_errorstring="$ERRORSTRING"
     TASKSTRING="fetching $1 files"
-    #if [ "$1" == "reference" ];then
-    #    ERRORSTRING="E@Error in fetching $1 files@Check if we generated new $1 files"
-    #elif [ "$1" == "input" ];then
+
     ERRORSTRING="E@Error in fetching $1 files@Check if the $1 files are available"
-    #fi
 
-    #trap 'LASTERR=$?; FUNCTION_NAME=${FUNCNAME[0]:-main};  exitstatus ${LASTERR} trap ; exit ${LASTERR}' ERR
-
-    #trap 'LASTERR=$?; echo -e "\nCI MSG BEGIN\n `basename $0`: error at line ${LINENO}\n Stage: ${STAGE_NAME}\n Task: ${TASKSTRING}\n exit status: ${LASTERR}\nCI MSG END\n"; exit ${LASTERR}' ERR
-    echo
     echo "fetching $1 files for ${proj_PREFIX}_ci."
     echo
     echo "fetch_files $@"
@@ -134,7 +126,7 @@ function fetch_files
         local copy_exit_code=$?
 
         if [[ $copy_exit_code -ne 0 ]]; then
-            if [ "$1" == "reference" ] && [ "$SELF_UPDATE" -eq 1 ];then #if it's a
+            if [ "$1" == "reference" ] && [ "$SELF_UPDATE" -eq 1 ];then
                 #skip the error and use something to execute first the data production and then coppy the reference dile on dcache
                 check_data_production=1
                 check_compare_names=0
@@ -167,8 +159,6 @@ function data_production
     TASKSTRING="data_production"
     ERRORSTRING="E@Error in data production@Check the log"
     trap 'LASTERR=$?; FUNCTION_NAME=${FUNCNAME[0]:-main};  exitstatus ${LASTERR} trap ${LINENO}; exit ${LASTERR}' ERR
-
-    #trap 'LASTERR=$?; echo -e "\nCI MSG BEGIN\n `basename $0`: error at line ${LINENO}\n Stage: ${STAGE_NAME}\n Task: ${TASKSTRING}\n exit status: ${LASTERR}\nCI MSG END\n"; exit ${LASTERR}' ERR
 
     export TMPDIR=${PWD} #Temporary directory used by IFDHC
 
@@ -205,7 +195,6 @@ function generate_data_dump
     ERRORSTRING="E@Error during dump Generation@Check the log"
 
     trap 'LASTERR=$?; FUNCTION_NAME=${FUNCNAME[0]:-main};  exitstatus ${LASTERR} trap ${LINENO}; exit ${LASTERR}' ERR
-    #trap 'LASTERR=$?; echo -e "\nCI MSG BEGIN\n `basename $0`: error at line ${LINENO}\n Stage: ${STAGE_NAME}\n Task: ${TASKSTRING}\n exit status: ${LASTERR}\nCI MSG END\n"; exit ${LASTERR}' ERR
 
     local NEVENTS=1
 
@@ -298,7 +287,6 @@ function upload_reference_file
 {
     TASKSTRING="upload reference file"
     ERRORSTRING="E@Failed Generating Reference file/s@Check for the reference files "
-    #trap 'LASTERR=$?; FUNCTION_NAME=${FUNCNAME[0]:-main};  exitstatus ${LASTERR} trap; exit ${LASTERR}' ERR
     #this was used as flag to be able to call this function,putting it back to false let me restore the
     #normal workflow of the function exitstatus,that can now return the real exit code of this function
     UPLOAD_REFERENCE_FILE=false
@@ -352,7 +340,6 @@ function exitstatus
 
 #~~~~~~~~~~~~~~~~~~~~~~~~MAIN OF THE SCRIPT~~~~~~~~~~~~~~~~~~
 trap 'LASTERR=$?; FUNCTION_NAME=${FUNCNAME[0]:-main};  exitstatus ${LASTERR} trap ${LINENO}; exit ${LASTERR}' ERR
-#trap 'LASTERR=$?; echo -e "\nCI MSG BEGIN\n `basename $0`: error at line ${LINENO}\n Stage: ${STAGE_NAME}\n Task: ${TASKSTRING}\n exit status: ${LASTERR}\nCI MSG END\n"; exit ${LASTERR}' ERR
 
 initialize $@
 
