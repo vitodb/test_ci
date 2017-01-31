@@ -107,11 +107,11 @@ function fetch_files
     old_taskstring="$TASKSTRING"
     old_errorstring="$ERRORSTRING"
     TASKSTRING="fetching $1 files"
-    if [ "$1" == "reference" ];then
-        ERRORSTRING="E@Warning in fetching $1 files@Check if we generated new $1 files"
-    elif [ "$1" == "input" ];then
-        ERRORSTRING="E@Warning in fetching $1 files@Check if the $1 files are available"
-    fi
+    #if [ "$1" == "reference" ];then
+    #    ERRORSTRING="E@Error in fetching $1 files@Check if we generated new $1 files"
+    #elif [ "$1" == "input" ];then
+    ERRORSTRING="E@Error in fetching $1 files@Check if the $1 files are available"
+    #fi
 
     #trap 'LASTERR=$?; FUNCTION_NAME=${FUNCNAME[0]:-main};  exitstatus ${LASTERR} trap ; exit ${LASTERR}' ERR
 
