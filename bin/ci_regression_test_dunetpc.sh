@@ -25,7 +25,7 @@ function initialize
 {
     TASKSTRING="initialize"
     ERRORSTRING="E@Error initializing the test@Check the log"
-    trap 'LASTERR=$?; FUNCTION_NAME=${FUNCNAME[0]:-main};  exitstatus ${LASTERR} trap; exit ${LASTERR}' ERR
+    trap 'LASTERR=$?; FUNCTION_NAME=${FUNCNAME[0]:-main};  exitstatus ${LASTERR} trap ${LINENO}; exit ${LASTERR}' ERR
     #trap 'LASTERR=$?; echo -e "\nCI MSG BEGIN\n `basename $0`: error at line ${LINENO}\n Stage: ${STAGE_NAME}\n Task: ${TASKSTRING}\n exit status: ${LASTERR}\nCI MSG END\n"; exit ${LASTERR}' ERR
 
     echo "running CI tests for ${proj_PREFIX}_ci."
@@ -129,25 +129,21 @@ function fetch_files
 
     for file in ${2//,/ }
     do
-        echo "Copying: " $file
         echo "Command: ifdh cp $file ./"
         ifdh cp $file ./
         local copy_exit_code=$?
 
         if [[ $copy_exit_code -ne 0 ]]; then
             if [ "$1" == "reference" ] && [ "$SELF_UPDATE" -eq 1 ];then #if it's a
-                echo "~~~ENTERING INTO THE REFERENCE"
                 #skip the error and use something to execute first the data production and then coppy the reference dile on dcache
                 check_data_production=1
                 check_compare_names=0
                 check_compare_size=0
                 #skip the compares because we don't have a reference file
                 UPLOAD_REFERENCE_FILE=true
+                echo "failed to fetch $file,Trying to produce a new reference file"
                 unlocated_reference_files="$unlocated_reference_files $file"
-                echo "~~~SETTED ALL VARIABLES"
             else
-                echo "~~~ENTERING INTO THE INPUT"
-
                 echo "Failed to fetch $file"
                 exitstatus 211
             fi
@@ -170,7 +166,7 @@ function data_production
 {
     TASKSTRING="data_production"
     ERRORSTRING="E@Error in data production@Check the log"
-    trap 'LASTERR=$?; FUNCTION_NAME=${FUNCNAME[0]:-main};  exitstatus ${LASTERR} trap; exit ${LASTERR}' ERR
+    trap 'LASTERR=$?; FUNCTION_NAME=${FUNCNAME[0]:-main};  exitstatus ${LASTERR} trap ${LINENO}; exit ${LASTERR}' ERR
 
     #trap 'LASTERR=$?; echo -e "\nCI MSG BEGIN\n `basename $0`: error at line ${LINENO}\n Stage: ${STAGE_NAME}\n Task: ${TASKSTRING}\n exit status: ${LASTERR}\nCI MSG END\n"; exit ${LASTERR}' ERR
 
@@ -208,7 +204,7 @@ function generate_data_dump
     TASKSTRING="generate_data_dump for ${file_stream} output stream"
     ERRORSTRING="E@Error during dump Generation@Check the log"
 
-    trap 'LASTERR=$?; FUNCTION_NAME=${FUNCNAME[0]:-main};  exitstatus ${LASTERR} trap; exit ${LASTERR}' ERR
+    trap 'LASTERR=$?; FUNCTION_NAME=${FUNCNAME[0]:-main};  exitstatus ${LASTERR} trap ${LINENO}; exit ${LASTERR}' ERR
     #trap 'LASTERR=$?; echo -e "\nCI MSG BEGIN\n `basename $0`: error at line ${LINENO}\n Stage: ${STAGE_NAME}\n Task: ${TASKSTRING}\n exit status: ${LASTERR}\nCI MSG END\n"; exit ${LASTERR}' ERR
 
     local NEVENTS=1
@@ -310,9 +306,7 @@ function upload_reference_file
 
     for filename in ${unlocated_reference_files}
     do
-        echo "~~~this is the filename: $filename"
         local reference_basename=`basename $REFERENCE_FILES`
-        echo "this is the reference_basename: $reference_basename"
 
         if [[ -n $build_identifier ]];then
             current_basename=`echo "${reference_basename//Reference/Current}" | sed -e "s/$build_identifier//g"`
@@ -320,11 +314,12 @@ function upload_reference_file
             current_basename="${reference_basename//Reference/Current}"
         fi
 
-        #ifdh cp "$current_file" "${REF`ERENCE_FILES//$file_basename}"
+        echo "ifdh cp $current_basename ${filename}"
         ifdh cp "$current_basename" "${filename}"
 
         if [ $? -ne 0 ];then
             #if the copy fail,let's  consider it failed
+            echo "Check if the reference file and the output file have the same name pattern"
             exitstatus 211
         fi
     done
@@ -338,7 +333,7 @@ function exitstatus
 {
     EXITSTATUS="$1"
     if [ "$2" == "trap" ];then
-        echo -e "\nCI MSG BEGIN\n Script: `basename $0`\n Function: ${FUNCTION_NAME} - error at line ${LINENO}\n Stage: ${STAGE_NAME}\n Task: ${TASKSTRING}\n exit status: $EXITSTATUS\nCI MSG END\n"
+        echo -e "\nCI MSG BEGIN\n Script: `basename $0`\n Function: ${FUNCTION_NAME} - error at line ${3}\n Stage: ${STAGE_NAME}\n Task: ${TASKSTRING}\n exit status: $EXITSTATUS\nCI MSG END\n"
     else
         echo -e "\nCI MSG BEGIN\n Stage: ${STAGE_NAME}\n Task: ${TASKSTRING}\n exit status: ${EXITSTATUS}\nCI MSG END\n"
     fi
@@ -356,7 +351,7 @@ function exitstatus
 
 
 #~~~~~~~~~~~~~~~~~~~~~~~~MAIN OF THE SCRIPT~~~~~~~~~~~~~~~~~~
-trap 'LASTERR=$?; FUNCTION_NAME=${FUNCNAME[0]:-main};  exitstatus ${LASTERR} trap ; exit ${LASTERR}' ERR
+trap 'LASTERR=$?; FUNCTION_NAME=${FUNCNAME[0]:-main};  exitstatus ${LASTERR} trap ${LINENO}; exit ${LASTERR}' ERR
 #trap 'LASTERR=$?; echo -e "\nCI MSG BEGIN\n `basename $0`: error at line ${LINENO}\n Stage: ${STAGE_NAME}\n Task: ${TASKSTRING}\n exit status: ${LASTERR}\nCI MSG END\n"; exit ${LASTERR}' ERR
 
 initialize $@
