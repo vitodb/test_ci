@@ -6,26 +6,27 @@ function usage {
    usage: $0 [options]
       running CI tests for ${proj_PREFIX}_ci.
    options:
-      --executable  Define the executable to run
-      --nevents     Define the number of events to process
-      --stage       Define the stage number used to parse the right testmask column number
-      --fhicl       Set the FHiCl file to use to run the test
-      --input       Set the file on which you want to run the test
-      --outputs     Define a list of couple <output_stream>:<output_filename> using "," as separator
-      --stage-name  Define the name of the test
-      --testmask    Define the name of the testmask file
-      --update-ref-files Flag to activate the "Update Reference Files" mode
-      --input-files
-      --reference-files
+      --executable              Define the executable to run
+      --nevents                 Define the number of events to process
+      --stage                   Define the stage number used to parse the right testmask column number
+      --fhicl                   Set the FHiCl file to use to run the test
+      --input                   Set the file on which you want to run the test
+      --outputs                 Define a list of couple <output_stream>:<output_filename> using "," as separator
+      --stage-name              Define the name of the test
+      --testmask                Define the bit-mask to enable the different test phases
+                                (currently there are 3 test phases: data_production; compare_data_products; compare_data_product_size.) 
+      --update-ref-files        Flag to activate the "Update Reference Files" mode
+      --input-files             List of input files to be downloaded before to execute the data production
+      --reference-files         List of reference files to be downloaded before the product comparison
+      --self-update-ref-files   Automatically upload the reference file,if the reference file linked to a test is missing
 EOF
 }
 
 function initialize
 {
     TASKSTRING="initialize"
-    ERRORSTRING="E@Error initializing the test"
-    trap 'LASTERR=$?; FUNCTION_NAME=${FUNCNAME[0]:-main};  exitstatus ${LASTERR} trap; exit ${LASTERR}' ERR
-    #trap 'LASTERR=$?; echo -e "\nCI MSG BEGIN\n `basename $0`: error at line ${LINENO}\n Stage: ${STAGE_NAME}\n Task: ${TASKSTRING}\n exit status: ${LASTERR}\nCI MSG END\n"; exit ${LASTERR}' ERR
+    ERRORSTRING="E@Error initializing the test@Check the log"
+    trap 'LASTERR=$?; FUNCTION_NAME=${FUNCNAME[0]:-main};  exitstatus ${LASTERR} trap ${LINENO}; exit ${LASTERR}' ERR
 
     echo "running CI tests for ${proj_PREFIX}_ci."
     echo
@@ -45,18 +46,19 @@ function initialize
     while :
     do
       case "x$1" in
-      x-h|x--help)         usage;                                                       exit;;
-      x--executable)       EXECUTABLE_NAME="${2}";                                      shift; shift;;
-      x--nevents)          NEVENTS="${2}";                                              shift; shift;;
-      x--stage)            STAGE="${2}";                                                shift; shift;;
-      x--fhicl)            FHiCL_FILE="${2}";                                           shift; shift;;
-      x--input)            INPUT_FILE="${2}";                                           shift; shift;;
-      x--outputs)          OUTPUT_LIST="${2}"; OUTPUT_STREAM="${OUTPUT_LIST//,/ -o }";  shift; shift;;
-      x--stage-name)       STAGE_NAME="${2}";                                           shift; shift;;
-      x--testmask)         TESTMASK="${2}";                                             shift; shift;;
-      x--input-files)      INPUT_FILES="${2}";                                          shift; shift;;
-      x--reference-files)  REFERENCE_FILES="${2}";                                      shift; shift;;
-      x--update-ref-files) UPDATE_REF_FILE_ON=1;                                        shift;;
+      x-h|x--help)               usage;                                                       exit;;
+      x--executable)             EXECUTABLE_NAME="${2}";                                      shift; shift;;
+      x--nevents)                NEVENTS="${2}";                                              shift; shift;;
+      x--stage)                  STAGE="${2}";                                                shift; shift;;
+      x--fhicl)                  FHiCL_FILE="${2}";                                           shift; shift;;
+      x--input)                  INPUT_FILE="${2}";                                           shift; shift;;
+      x--outputs)                OUTPUT_LIST="${2}"; OUTPUT_STREAM="${OUTPUT_LIST//,/ -o }";  shift; shift;;
+      x--stage-name)             STAGE_NAME="${2}";                                           shift; shift;;
+      x--testmask)               TESTMASK="${2}";                                             shift; shift;;
+      x--input-files)            INPUT_FILES="${2}";                                          shift; shift;;
+      x--reference-files)        REFERENCE_FILES="${2}";                                      shift; shift;;
+      x--update-ref-files)       UPDATE_REF_FILE_ON=1;                                        shift;;
+      x--self-update-ref-files)  SELF_UPDATE_REF_FILES=1;                                     shift;;
       x)                                                                                break;;
       x*)            echo "Unknown argument $1"; usage; exit 1;;
       esac
@@ -81,9 +83,9 @@ function initialize
 
     #~~~~~~~~~~~~~~~~~~~~~PARSE THE TESTMASK FILE TO UNDERSTAND WHICH FUNCTION TO RUN ~~~~~~~~~~~~
     if [ -n "${TESTMASK}" ];then
-        check_data_production=$(sed -n '1p' ${TESTMASK} | cut -d ' ' -f ${STAGE})
-        check_compare_names=$(sed -n '2p' ${TESTMASK} | cut -d ' ' -f ${STAGE})
-        check_compare_size=$(sed -n '3p' ${TESTMASK} | cut -d ' ' -f ${STAGE})
+        check_data_production=${TESTMASK:0:1}
+        check_compare_names=${TESTMASK:1:1}
+        check_compare_size=${TESTMASK:2:2}
     else
         check_data_production=1
         check_compare_names=0
@@ -93,6 +95,7 @@ function initialize
     echo "Input file:  ${INPUT_FILE}"
     echo "Output files: ${OUTPUT_LIST}"
     echo "FHiCL file:  ${FHiCL_FILE}"
+    echo "Testmask: ${TESTMASK}"
     echo
     echo -e "\nRunning\n `basename $0` $@"
 
@@ -105,16 +108,9 @@ function fetch_files
     old_taskstring="$TASKSTRING"
     old_errorstring="$ERRORSTRING"
     TASKSTRING="fetching $1 files"
-    if [ "$1" == "reference" ];then
-        ERRORSTRING="W@Warning in fetching $1 files@We tried to upload the $1 file on your reference folder directory"
-    elif [ "$1" == "input" ];then
-        ERRORSTRING="W@Warning in fetching $1 files@Check if the $1 files are available in your input dile directory"
-    fi
 
-    trap 'LASTERR=$?; FUNCTION_NAME=${FUNCNAME[0]:-main};  exitstatus ${LASTERR} trap ; exit ${LASTERR}' ERR
+    ERRORSTRING="E@Error in fetching $1 files@Check if the $1 files are available"
 
-    #trap 'LASTERR=$?; echo -e "\nCI MSG BEGIN\n `basename $0`: error at line ${LINENO}\n Stage: ${STAGE_NAME}\n Task: ${TASKSTRING}\n exit status: ${LASTERR}\nCI MSG END\n"; exit ${LASTERR}' ERR
-    echo
     echo "fetching $1 files for ${proj_PREFIX}_ci."
     echo
     echo "fetch_files $@"
@@ -127,21 +123,34 @@ function fetch_files
 
     for file in ${2//,/ }
     do
-        echo "Copying: " $file
         echo "Command: ifdh cp $file ./"
         ifdh cp $file ./
+        local copy_exit_code=$?
 
-        if [ $? -ne 0 ]; then
-            echo "Failed to fetch $file"
-            exitstatus 203
+        if [[ $copy_exit_code -ne 0 ]]; then
+            if [ "$1" == "reference" ] && [ "$SELF_UPDATE_REF_FILES" -eq 1 ];then
+                #skip the error and use something to execute first the data production and then coppy the reference dile on dcache
+                check_data_production=1
+                check_compare_names=0
+                check_compare_size=0
+                #skip the compares because we don't have a reference file
+                UPLOAD_REFERENCE_FILE=true
+                echo "failed to fetch $file,Trying to produce a new reference file"
+                unlocated_reference_files="$unlocated_reference_files $file"
+            else
+                echo "Failed to fetch $file"
+                exitstatus 211
+            fi
         fi
-
     done
 
     export IFDH_DEBUG=$debug_backup
     export IFDH_CP_MAXRETRIES=$maxretries_backup
-
-    exitstatus $?
+    if [[ "$UPLOAD_REFERENCE_FILE" == "true" ]];then
+        exitstatus 203
+    else
+        exitstatus $copy_exit_code
+    fi
     TASKSTRING="$old_taskstring"
     ERRORSTRING="$old_errorstring"
 }
@@ -150,10 +159,8 @@ function fetch_files
 function data_production
 {
     TASKSTRING="data_production"
-    ERRORSTRING="E@Error in data production"
-    trap 'LASTERR=$?; FUNCTION_NAME=${FUNCNAME[0]:-main};  exitstatus ${LASTERR} trap; exit ${LASTERR}' ERR
-
-    #trap 'LASTERR=$?; echo -e "\nCI MSG BEGIN\n `basename $0`: error at line ${LINENO}\n Stage: ${STAGE_NAME}\n Task: ${TASKSTRING}\n exit status: ${LASTERR}\nCI MSG END\n"; exit ${LASTERR}' ERR
+    ERRORSTRING="E@Error in data production@Check the log"
+    trap 'LASTERR=$?; FUNCTION_NAME=${FUNCNAME[0]:-main};  exitstatus ${LASTERR} trap ${LINENO}; exit ${LASTERR}' ERR
 
     export TMPDIR=${PWD} #Temporary directory used by IFDHC
 
@@ -182,16 +189,14 @@ function data_production
         done
 
     OUTPUT_LIST=${OUTPUT_LIST//_%#/}
-
 }
 
 function generate_data_dump
 {
     TASKSTRING="generate_data_dump for ${file_stream} output stream"
-    ERRORSTRING="E@Error during dump Generation"
+    ERRORSTRING="E@Error during dump Generation@Check the log"
 
-    trap 'LASTERR=$?; FUNCTION_NAME=${FUNCNAME[0]:-main};  exitstatus ${LASTERR} trap; exit ${LASTERR}' ERR
-    #trap 'LASTERR=$?; echo -e "\nCI MSG BEGIN\n `basename $0`: error at line ${LINENO}\n Stage: ${STAGE_NAME}\n Task: ${TASKSTRING}\n exit status: ${LASTERR}\nCI MSG END\n"; exit ${LASTERR}' ERR
+    trap 'LASTERR=$?; FUNCTION_NAME=${FUNCNAME[0]:-main};  exitstatus ${LASTERR} trap ${LINENO}; exit ${LASTERR}' ERR
 
     local NEVENTS=1
 
@@ -224,7 +229,7 @@ function generate_data_dump
 function compare_products_names
 {
     TASKSTRING="compare_products_names for ${file_stream} output stream"
-    ERRORSTRING="W@Differences in products names@Please consider to request a new set of reference files"
+    ERRORSTRING="W@Error comparing products names@check the log"
 
     if [[ "$1" -eq 1 ]]
     then
@@ -236,9 +241,10 @@ function compare_products_names
 
         echo -e "\nCheck for added/removed data products"
         echo -e "difference(s)\n"
-        #~~~~~~~~~~~~~~~IF THERE'S A DIFFERENCE EXIT WITH ERROR CODE 200~~~~~~~~~~~~~~~
+        #~~~~~~~~~~~~~~~IF THERE'S A DIFFERENCE EXIT WITH ERROR CODE 201~~~~~~~~~~~~~~~
         if [[ "${STATUS}" -ne 0  ]]; then
             echo "${DIFF}"
+            ERRORSTRING="W@Differences in products names@Request new reference files"
             exitstatus 201
         else
             echo -e "none\n\n"
@@ -252,7 +258,7 @@ function compare_products_names
 function compare_products_sizes
 {
     TASKSTRING="compare_products_sizes for ${file_stream} output stream"
-    ERRORSTRING="W@Differences in products sizes@Please consider to request a new set of reference files"
+    ERRORSTRING="E@Error comparing product sizes@Check the log"
 
 
     if [[ "${1}" -eq 1 ]]
@@ -265,9 +271,10 @@ function compare_products_sizes
         echo -e "\nCheck for differences in the size of data products"
         echo -e "difference(s)\n"
 
-        #~~~~~~~~~~~~~~~IF THERE'S A DIFFERENCE EXIT WITH ERROR CODE 201 ~~~~~~~~~~~~~~~~~~~~~~~
+        #~~~~~~~~~~~~~~~IF THERE'S A DIFFERENCE EXIT WITH ERROR CODE 202 ~~~~~~~~~~~~~~~~~~~~~~~
         if [[ "${STATUS}" -ne 0 ]]; then
             echo "${DIFF}"
+            ERRORSTRING="W@Differences in products sizes@Request new reference files"
             exitstatus 202
         else
             echo -e "none\n\n"
@@ -278,18 +285,51 @@ function compare_products_sizes
     fi
 }
 
+function upload_reference_file
+{
+    TASKSTRING="upload reference file"
+    ERRORSTRING="E@Failed Generating Reference file/s@Check for the reference files "
+    #this was used as flag to be able to call this function,putting it back to false let me restore the
+    #normal workflow of the function exitstatus,that can now return the real exit code of this function
+    UPLOAD_REFERENCE_FILE=false
+
+
+    for filename in ${unlocated_reference_files}
+    do
+        local reference_basename=`basename $REFERENCE_FILES`
+
+        if [[ -n $build_identifier ]];then
+            current_basename=`echo "${reference_basename//Reference/Current}" | sed -e "s/$build_identifier//g"`
+        else
+            current_basename="${reference_basename//Reference/Current}"
+        fi
+
+        echo "ifdh cp $current_basename ${filename}"
+        ifdh cp "$current_basename" "${filename}"
+
+        if [ $? -ne 0 ];then
+            #if the copy fail,let's  consider it failed
+            echo "Check if the reference file and the output file have the same name pattern"
+            exitstatus 211
+        fi
+    done
+    #if all the copy are successful,exit in warning
+    ERRORSTRING="W@Generated missing Reference file/s@Check for the reference files"
+    exitstatus 203
+}
+
 #~~~~~~~~~~~~~~~~~~~~~~~PRINT AN ERROR MESSAGE IN THE PROGRAM EXIT WITH AN ERROR CODE~~~~~~~~~~~~~~~~
 function exitstatus
 {
     EXITSTATUS="$1"
     if [ "$2" == "trap" ];then
-        echo -e "\nCI MSG BEGIN\n Script: `basename $0`\n Function: ${FUNCTION_NAME} - error at line ${LINENO}\n Stage: ${STAGE_NAME}\n Task: ${TASKSTRING}\n exit status: $EXITSTATUS\nCI MSG END\n"
+        echo -e "\nCI MSG BEGIN\n Script: `basename $0`\n Function: ${FUNCTION_NAME} - error at line ${3}\n Stage: ${STAGE_NAME}\n Task: ${TASKSTRING}\n exit status: $EXITSTATUS\nCI MSG END\n"
     else
         echo -e "\nCI MSG BEGIN\n Stage: ${STAGE_NAME}\n Task: ${TASKSTRING}\n exit status: ${EXITSTATUS}\nCI MSG END\n"
     fi
-
-    if [[ "${EXITSTATUS}" -ne 0 ]]; then
-        if [ -n "$ERRORSTRING" ];then
+    #don't exit if the fetch of the reference failed,because we need to produce one and then upload it
+    if [[ "${EXITSTATUS}" -ne 0 ]] && [[ "$UPLOAD_REFERENCE_FILE" != "true" ]] ; then
+        if [[ -n "$ERRORSTRING" ]];then
             echo "`basename $PWD`@${EXITSTATUS}@$ERRORSTRING" >> $WORKSPACE/data_production_stats.log
         fi
         exit "${EXITSTATUS}"
@@ -298,40 +338,44 @@ function exitstatus
 
 
 
+
+
 #~~~~~~~~~~~~~~~~~~~~~~~~MAIN OF THE SCRIPT~~~~~~~~~~~~~~~~~~
-trap 'LASTERR=$?; FUNCTION_NAME=${FUNCNAME[0]:-main};  exitstatus ${LASTERR} trap ; exit ${LASTERR}' ERR
-#trap 'LASTERR=$?; echo -e "\nCI MSG BEGIN\n `basename $0`: error at line ${LINENO}\n Stage: ${STAGE_NAME}\n Task: ${TASKSTRING}\n exit status: ${LASTERR}\nCI MSG END\n"; exit ${LASTERR}' ERR
+trap 'LASTERR=$?; FUNCTION_NAME=${FUNCNAME[0]:-main};  exitstatus ${LASTERR} trap ${LINENO}; exit ${LASTERR}' ERR
 
 initialize $@
 
 data_production "${check_data_production}"
 
 #~~~~~~~~~~~~~~~~PROCESS ALL THE FILES DECLARED INTO THE OUTPUT LIST~~~~~~~~~~~~~~~~~
-for filename in ${OUTPUT_LIST//,/ }
-do
-    file_stream=$(echo "${filename}" | cut -d ':' -f 1)
-    current_file=$(echo "${filename}" | cut -d ':' -f 2)
+if [[ "$UPLOAD_REFERENCE_FILE" == "true" ]];then
+    upload_reference_file
+else
+    for filename in ${OUTPUT_LIST//,/ }
+    do
+        file_stream=$(echo "${filename}" | cut -d ':' -f 1)
+        current_file=$(echo "${filename}" | cut -d ':' -f 2)
 
-    echo "filename: ${filename}"
-    echo "file_stream: ${file_stream}"
-    echo "current_file: ${current_file}"
+        echo "filename: ${filename}"
+        echo "file_stream: ${file_stream}"
+        echo "current_file: ${current_file}"
 
-    if [ -n "${build_platform}" ]
-    then
-        reference_file=$(echo "${current_file%`echo ${build_platform}`*}${build_platform}${current_file#*`echo ${build_platform}`}")
-    else
-        reference_file=$(echo "${current_file}")
-    fi
-    reference_file="${reference_file//Current/Reference}"
+        if [ -n "${build_platform}" ]; then
+            reference_file=$(echo "${current_file%`echo ${build_platform}`*}${build_platform}${current_file#*`echo ${build_platform}`}")
+        else
+            reference_file=$(echo "${current_file}")
+        fi
+        reference_file="${reference_file//Current/Reference}"
 
-    if [[ "${check_compare_names}" -eq 1  || "${check_compare_size}" -eq 1 ]]
-    then
-        generate_data_dump
-    else
-        break
-    fi
+        if [[ "${check_compare_names}" -eq 1  || "${check_compare_size}" -eq 1 ]]; then
+            generate_data_dump
+        else
+            break
+        fi
 
-    compare_products_names "${check_compare_names}"
+        compare_products_names "${check_compare_names}"
 
-    compare_products_sizes "${check_compare_size}"
-done
+        compare_products_sizes "${check_compare_size}"
+
+    done
+fi

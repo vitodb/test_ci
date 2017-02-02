@@ -13,7 +13,8 @@ function usage {
       --input                   Set the file on which you want to run the test
       --outputs                 Define a list of couple <output_stream>:<output_filename> using "," as separator
       --stage-name              Define the name of the test
-      --testmask                Define the name of the testmask file
+      --testmask                Define the bit-mask to enable the different test phases
+                                (currently there are 3 test phases: data_production; compare_data_products; compare_data_product_size.) 
       --update-ref-files        Flag to activate the "Update Reference Files" mode
       --input-files             List of input files to be downloaded before to execute the data production
       --reference-files         List of reference files to be downloaded before the product comparison
