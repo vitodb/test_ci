@@ -83,9 +83,9 @@ standard() {
 
     echo "run exp code..."
     echo CMD: $(eval echo \$executable_${EXP_STAGE}) $(eval echo \$arguments_${EXP_STAGE} -c \$FHiCL_${EXP_STAGE} -n \$nevents_per_job_${EXP_STAGE} -o \$output_filename_${EXP_STAGE}) $new_input_filename
-    /usr/bin/time -o ${EXP_STAGE}_${CI_PROCESS}.stats -f "\n${EXP_STAGE} stats\nelapsed_time: %e s\nCPU: %P %\nMax_RSS_Mem: %M kb\n" $(eval echo \$executable_${EXP_STAGE}) $(eval echo \$arguments_${EXP_STAGE} -c \$FHiCL_${EXP_STAGE} -n \$nevents_per_job_${EXP_STAGE} -o \$output_filename_${EXP_STAGE}) $new_input_filename
+    /usr/bin/time -o ${EXP_STAGE}_${CI_PROCESS}.stats -f "\n${EXP_STAGE} stats\nelapsed_time: %e s\nCPU: %P %%\nMax_RSS_Mem: %M kb\n" $(eval echo \$executable_${EXP_STAGE}) $(eval echo \$arguments_${EXP_STAGE} -c \$FHiCL_${EXP_STAGE} -n \$nevents_per_job_${EXP_STAGE} -o \$output_filename_${EXP_STAGE}) $new_input_filename
 
-    stat -c "file_size: %s b %n" $(eval echo \$output_filename_${EXP_STAGE}) >> -o ${EXP_STAGE}_${CI_PROCESS}.stats
+    stat -c "file_size: %s b %n" $(eval echo \$output_filename_${EXP_STAGE}) >> ${EXP_STAGE}_${CI_PROCESS}.stats
 
     report_exitcode=$?
     echo "exitstatus executable: $report_exitcode"
