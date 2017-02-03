@@ -87,7 +87,7 @@ standard() {
 
     timever=$(rpm -qf /usr/bin/time)
     echo ${timever} > ${EXP_STAGE}_${CI_PROCESS}.stats
-    if [[ "$timever" = "time-1.7-37"* || "$timever" = "time-1.7-27"* ]]; then mem_scale=4; else mem_scale=1 fi
+    if [[ "$timever" = "time-1.7-37"* || "$timever" = "time-1.7-27"* ]]; then mem_scale=4; else mem_scale=1; fi
     awk '/Max_RSS_Mem:/ {$2=$2/'${mem_scale}'}1' ${EXP_STAGE}_${CI_PROCESS}.stats_tmp >> ${EXP_STAGE}_${CI_PROCESS}.stats
 
     stat -c "file_size: %s b %n" $(eval echo \$output_filename_${EXP_STAGE}) >> ${EXP_STAGE}_${CI_PROCESS}.stats
