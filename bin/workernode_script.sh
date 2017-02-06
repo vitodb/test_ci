@@ -83,7 +83,7 @@ standard() {
 
     echo "run exp code..."
     echo CMD: $(eval echo \$executable_${EXP_STAGE}) $(eval echo \$arguments_${EXP_STAGE} -c \$FHiCL_${EXP_STAGE} -n \$nevents_per_job_${EXP_STAGE} -o \$output_filename_${EXP_STAGE}) $new_input_filename
-    /usr/bin/time -o ${EXP_STAGE}_${CI_PROCESS}.stats_tmp -f "\n${EXP_STAGE} stats\nelapsed_time: %e s\nCPU: %P %%\nMax_RSS_Mem: %M kb\n" $(eval echo \$executable_${EXP_STAGE}) $(eval echo \$arguments_${EXP_STAGE} -c \$FHiCL_${EXP_STAGE} -n \$nevents_per_job_${EXP_STAGE} -o \$output_filename_${EXP_STAGE}) $new_input_filename
+    /usr/bin/time -o ${EXP_STAGE}_${CI_PROCESS}.stats_tmp -f "\n${EXP_STAGE} stats\nelapsed_time: %e s\nCPU: %P\nMax_RSS_Mem: %M kb\n" $(eval echo \$executable_${EXP_STAGE}) $(eval echo \$arguments_${EXP_STAGE} -c \$FHiCL_${EXP_STAGE} -n \$nevents_per_job_${EXP_STAGE} -o \$output_filename_${EXP_STAGE}) $new_input_filename
 
     timever=$(rpm -qf /usr/bin/time)
     echo ${timever} > ${EXP_STAGE}_${CI_PROCESS}.stats
@@ -94,6 +94,10 @@ standard() {
 
     report_exitcode=$?
     echo "exitstatus executable: $report_exitcode"
+    if [ ${report_exitcode} -ne 0 ]; then
+        exit ${report_exitcode}
+    fi
+
 
     ls -lh
 
