@@ -100,10 +100,6 @@ standard() {
         echo "file_size: 0 b none" >> ${EXP_STAGE}_${CI_PROCESS}.stats
     fi
 
-    if [ ${report_exitcode} -ne 0 ]; then
-        exit ${report_exitcode}
-    fi
-
     ls -lh
 
     echo "Copy output file..."
@@ -117,8 +113,8 @@ standard() {
     ifdh cp ${PWD}/$new_output_filename ${CI_DCACHEDIR}/${EXP_STAGE}/$new_output_filename
     ifdh cp ${PWD}/${EXP_STAGE}_${CI_PROCESS}.stats ${CI_DCACHEDIR}/${EXP_STAGE}/logs/
 
-    report_exitcode=$?
-    echo "exitstatus ifdh cp: $report_exitcode"
+    ### report_exitcode=$?
+    echo "exitstatus ifdh cp: $?"
 
     ls -lh
 
