@@ -109,8 +109,8 @@ standard() {
     echo "Copy output file..."
     new_output_filename=$(eval echo \$output_to_transfer_${EXP_STAGE})
     new_output_filename=${new_output_filename//.root/_${CI_PROCESS}.root}
-    echo CMD: mv -v $(eval echo \$output_to_transfer_${EXP_STAGE}) $new_output_filename
-    mv -v $(eval echo \$output_to_transfer_${EXP_STAGE}) $new_output_filename
+    echo CMD: ln $(eval echo \$output_to_transfer_${EXP_STAGE}) $new_output_filename
+    ln $(eval echo \$output_to_transfer_${EXP_STAGE}) $new_output_filename
     echo "exitstatus mv output: $?"
     ls -lh
     echo CMD: ifdh cp ${PWD}/$new_output_filename ${CI_DCACHEDIR}/${EXP_STAGE}/$new_output_filename
