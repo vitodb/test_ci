@@ -148,12 +148,12 @@ merge() {
     ifdh findMatchingFiles ${CI_DCACHEDIR}/$(eval echo \$input_from_stage_${EXP_STAGE})/ ${new_input_filename}
 
     ### echo CMD: hadd $(eval echo \$output_filename_${EXP_STAGE}) $(for source_file in $( ifdh findMatchingFiles ${CI_DCACHEDIR}/$(eval echo \$input_from_stage_${EXP_STAGE})/ ${new_input_filename} 2> /dev/null | awk '{print $1}' ) ; do echo root://fndca1.fnal.gov:1094/${source_file//\/pnfs/pnfs\/fnal.gov\/usr}; done)
-    echo CMD: hadd $(eval echo \$output_filename_${EXP_STAGE}) $(ifdh findMatchingFiles ${CI_DCACHEDIR}/$(eval echo \$input_from_stage_${EXP_STAGE})/ ${new_input_filename} 2> /dev/null | sed 's#/pnfs/#root://fndca1.fnal.gov:1094/pnfs/fnal.gov/usr/#g')
+    echo CMD: hadd $(eval echo \$output_filename_${EXP_STAGE}) $(ifdh findMatchingFiles ${CI_DCACHEDIR}/$(eval echo \$input_from_stage_${EXP_STAGE})/ ${new_input_filename} 2> /dev/null | awk '{print $1}' | sed 's#/pnfs/#root://fndca1.fnal.gov:1094/pnfs/fnal.gov/usr/#g')
 
     sleep 100 ### FIXME make sure that files can be accessed from dCache
 
     ### hadd $(eval echo \$output_filename_${EXP_STAGE}) $(for source_file in $( ifdh findMatchingFiles ${CI_DCACHEDIR}/$(eval echo \$input_from_stage_${EXP_STAGE})/ ${new_input_filename} 2> /dev/null | awk '{print $1}' ) ; do echo root://fndca1.fnal.gov:1094/${source_file//\/pnfs/pnfs\/fnal.gov\/usr}; done)
-    hadd $(eval echo \$output_filename_${EXP_STAGE}) $(ifdh findMatchingFiles ${CI_DCACHEDIR}/$(eval echo \$input_from_stage_${EXP_STAGE})/ ${new_input_filename} 2> /dev/null | sed 's#/pnfs/#root://fndca1.fnal.gov:1094/pnfs/fnal.gov/usr/#g')
+    hadd $(eval echo \$output_filename_${EXP_STAGE}) $(ifdh findMatchingFiles ${CI_DCACHEDIR}/$(eval echo \$input_from_stage_${EXP_STAGE})/ ${new_input_filename} 2> /dev/null | awk '{print $1}' | sed 's#/pnfs/#root://fndca1.fnal.gov:1094/pnfs/fnal.gov/usr/#g')
 
     report_exitcode=$?
     echo "exitstatus hadd: $report_exitcode"
