@@ -102,7 +102,6 @@ standard() {
     ls -lh
     echo CMD: ifdh cp ${PWD}/$new_output_filename ${CI_DCACHEDIR}/${EXP_STAGE}/$new_output_filename
     ifdh cp ${PWD}/$new_output_filename ${CI_DCACHEDIR}/${EXP_STAGE}/$new_output_filename
-    ifdh cp ${PWD}/${EXP_STAGE}_${CI_PROCESS}.stats ${CI_DCACHEDIR}/${EXP_STAGE}/logs/
 
     ### report_exitcode=$?
     echo "exitstatus ifdh cp: $?"
