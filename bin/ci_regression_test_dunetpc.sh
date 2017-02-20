@@ -14,7 +14,7 @@ function usage {
       --outputs                 Define a list of couple <output_stream>:<output_filename> using "," as separator
       --stage-name              Define the name of the test
       --testmask                Define the bit-mask to enable the different test phases
-                                (currently there are 3 test phases: data_production; compare_data_products; compare_data_product_size.) 
+                                (currently there are 3 test phases: data_production; compare_data_products; compare_data_product_size.)
       --update-ref-files        Flag to activate the "Update Reference Files" mode
       --input-files             List of input files to be downloaded before to execute the data production
       --reference-files         List of reference files to be downloaded before the product comparison
@@ -133,10 +133,15 @@ function fetch_files
                 check_data_production=1
                 check_compare_names=0
                 check_compare_size=0
-                #skip the compares because we don't have a reference file
                 UPLOAD_REFERENCE_FILE=true
                 echo "failed to fetch $file,Trying to produce a new reference file"
                 unlocated_reference_files="$unlocated_reference_files $file"
+            if [ "$1" == "reference" ] && [ "$UPDATE_REF_FILE_ON" -eq 1 ];then
+                #skip the compares because we don't have a reference file
+                check_data_production=1
+                check_compare_names=0
+                check_compare_size=0
+                UPLOAD_REFERENCE_FILE=true
             else
                 echo "Failed to fetch $file"
                 exitstatus 211
@@ -348,7 +353,7 @@ initialize $@
 data_production "${check_data_production}"
 
 #~~~~~~~~~~~~~~~~PROCESS ALL THE FILES DECLARED INTO THE OUTPUT LIST~~~~~~~~~~~~~~~~~
-if [[ "$UPLOAD_REFERENCE_FILE" == "true" ]];then
+if [[ "$UPLOAD_REFERENCE_FILE" == "true" ]] && [[ "$UPDATE_REF_FILE_ON" -ne 1 ]];then
     upload_reference_file
 else
     for filename in ${OUTPUT_LIST//,/ }
