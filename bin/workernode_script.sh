@@ -176,7 +176,7 @@ calorimeter_validation () {
     for f in calorimetry/*.gif
     do
         bf=`basename $f`
-        hist_desc="hits ${bf//.gif/}"
+        hist_desc="${bf//.gif/} plot"
         hist_name="${bf//.gif/}"
         ### stage_counter_string=$(printf '%02d\n' "$(stage_index ${EXP_STAGE})")
         ### report_img "$report_phase" "" "${stage_counter_string}_${EXP_STAGE}_stage" "$hist_name" "$f" "$hist_desc"
