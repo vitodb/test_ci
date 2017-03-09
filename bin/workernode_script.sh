@@ -82,8 +82,11 @@ standard() {
 
 
     echo "run exp code..."
-    echo CMD: $(eval echo \$executable_${EXP_STAGE}) $(eval echo \$arguments_${EXP_STAGE} -c \$FHiCL_${EXP_STAGE} -n \$nevents_per_job_${EXP_STAGE} -o \$output_filename_${EXP_STAGE}) $new_input_filename
-    $(eval echo \$executable_${EXP_STAGE}) $(eval echo \$arguments_${EXP_STAGE} -c \$FHiCL_${EXP_STAGE} -n \$nevents_per_job_${EXP_STAGE} -o \$output_filename_${EXP_STAGE}) $new_input_filename
+    ### echo CMD: $(eval echo \$executable_${EXP_STAGE}) $(eval echo \$arguments_${EXP_STAGE} -c \$FHiCL_${EXP_STAGE} -n \$nevents_per_job_${EXP_STAGE} -o \$output_filename_${EXP_STAGE}) $new_input_filename
+
+    echo "ci_exp_cmd: $(eval echo ${ci_exp_cmd})"
+    echo CMD: $(eval echo ${ci_exp_cmd}) $(eval echo \$arguments_${EXP_STAGE} -c \$FHiCL_${EXP_STAGE} -n \$nevents_per_job_${EXP_STAGE} -o \$output_filename_${EXP_STAGE}) $new_input_filename
+    eval $(eval echo ${ci_exp_cmd}) $(eval echo \$arguments_${EXP_STAGE} -c \$FHiCL_${EXP_STAGE} -n \$nevents_per_job_${EXP_STAGE} -o \$output_filename_${EXP_STAGE}) $new_input_filename
 
     report_exitcode=$?
     echo "exitstatus executable: $report_exitcode"
@@ -93,15 +96,15 @@ standard() {
     echo "Copy output file..."
     new_output_filename=$(eval echo \$output_to_transfer_${EXP_STAGE})
     new_output_filename=${new_output_filename//.root/_${CI_PROCESS}.root}
-    echo CMD: mv -v $(eval echo \$output_to_transfer_${EXP_STAGE}) $new_output_filename
-    mv -v $(eval echo \$output_to_transfer_${EXP_STAGE}) $new_output_filename
+    echo CMD: ln $(eval echo \$output_to_transfer_${EXP_STAGE}) $new_output_filename
+    ln $(eval echo \$output_to_transfer_${EXP_STAGE}) $new_output_filename
     echo "exitstatus mv output: $?"
     ls -lh
     echo CMD: ifdh cp ${PWD}/$new_output_filename ${CI_DCACHEDIR}/${EXP_STAGE}/$new_output_filename
     ifdh cp ${PWD}/$new_output_filename ${CI_DCACHEDIR}/${EXP_STAGE}/$new_output_filename
 
-    report_exitcode=$?
-    echo "exitstatus ifdh cp: $report_exitcode"
+    ### report_exitcode=$?
+    echo "exitstatus ifdh cp: $?"
 
     ls -lh
 
@@ -134,11 +137,13 @@ merge() {
     echo CMD: ifdh findMatchingFiles ${CI_DCACHEDIR}/$(eval echo \$input_from_stage_${EXP_STAGE})/ ${new_input_filename}
     ifdh findMatchingFiles ${CI_DCACHEDIR}/$(eval echo \$input_from_stage_${EXP_STAGE})/ ${new_input_filename}
 
-    echo CMD: hadd $(eval echo \$output_filename_${EXP_STAGE}) $(for source_file in $( ifdh findMatchingFiles ${CI_DCACHEDIR}/$(eval echo \$input_from_stage_${EXP_STAGE})/ ${new_input_filename} 2> /dev/null | awk '{print $1}' ) ; do echo root://fndca1.fnal.gov:1094/${source_file}; done)
+    ### echo CMD: hadd $(eval echo \$output_filename_${EXP_STAGE}) $(for source_file in $( ifdh findMatchingFiles ${CI_DCACHEDIR}/$(eval echo \$input_from_stage_${EXP_STAGE})/ ${new_input_filename} 2> /dev/null | awk '{print $1}' ) ; do echo root://fndca1.fnal.gov:1094/${source_file//\/pnfs/pnfs\/fnal.gov\/usr}; done)
+    echo CMD: hadd $(eval echo \$output_filename_${EXP_STAGE}) $(ifdh findMatchingFiles ${CI_DCACHEDIR}/$(eval echo \$input_from_stage_${EXP_STAGE})/ ${new_input_filename} 2> /dev/null | awk '{print $1}' | sed 's#/pnfs/#root://fndca1.fnal.gov:1094/pnfs/fnal.gov/usr/#g')
 
     sleep 100 ### FIXME make sure that files can be accessed from dCache
 
-    hadd $(eval echo \$output_filename_${EXP_STAGE}) $(for source_file in $( ifdh findMatchingFiles ${CI_DCACHEDIR}/$(eval echo \$input_from_stage_${EXP_STAGE})/ ${new_input_filename} 2> /dev/null | awk '{print $1}' ) ; do echo root://fndca1.fnal.gov:1094/${source_file//\/pnfs/pnfs\/fnal.gov\/usr}; done)
+    ### hadd $(eval echo \$output_filename_${EXP_STAGE}) $(for source_file in $( ifdh findMatchingFiles ${CI_DCACHEDIR}/$(eval echo \$input_from_stage_${EXP_STAGE})/ ${new_input_filename} 2> /dev/null | awk '{print $1}' ) ; do echo root://fndca1.fnal.gov:1094/${source_file//\/pnfs/pnfs\/fnal.gov\/usr}; done)
+    hadd $(eval echo \$output_filename_${EXP_STAGE}) $(ifdh findMatchingFiles ${CI_DCACHEDIR}/$(eval echo \$input_from_stage_${EXP_STAGE})/ ${new_input_filename} 2> /dev/null | awk '{print $1}' | sed 's#/pnfs/#root://fndca1.fnal.gov:1094/pnfs/fnal.gov/usr/#g')
 
     report_exitcode=$?
     echo "exitstatus hadd: $report_exitcode"
@@ -171,7 +176,7 @@ calorimeter_validation () {
     for f in calorimetry/*.gif
     do
         bf=`basename $f`
-        hist_desc="hits ${bf//.gif/}"
+        hist_desc="${bf//.gif/} plot"
         hist_name="${bf//.gif/}"
         ### stage_counter_string=$(printf '%02d\n' "$(stage_index ${EXP_STAGE})")
         ### report_img "$report_phase" "" "${stage_counter_string}_${EXP_STAGE}_stage" "$hist_name" "$f" "$hist_desc"
