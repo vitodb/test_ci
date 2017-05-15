@@ -27,7 +27,7 @@ EOF
 function initialize
 {
     TASKSTRING="initialize"
-    ERRORSTRING="F@Error initializing the test@Check the log@$FOLLOWERS"
+    ERRORSTRING="F;Error initializing the test;Check the log;$FOLLOWERS"
     trap 'LASTERR=$?; FUNCTION_NAME=${FUNCNAME[0]:-main};  exitstatus ${LASTERR} trap ${LINENO}; exit ${LASTERR}' ERR
 
     echo "running CI tests for ${proj_PREFIX}_ci."
@@ -117,7 +117,7 @@ function fetch_files
     old_errorstring="$ERRORSTRING"
     TASKSTRING="fetching $1 files"
 
-    ERRORSTRING="F@Error in fetching $1 files@Check if the $1 files are available@$FOLLOWERS"
+    ERRORSTRING="F;Error in fetching $1 files;Check if the $1 files are available;$FOLLOWERS"
 
     echo "fetching $1 files for ${proj_PREFIX}_ci."
     echo
@@ -152,7 +152,7 @@ function fetch_files
 function data_production
 {
     TASKSTRING="data_production"
-    ERRORSTRING="F@Error in data production@Check the log@$FOLLOWERS"
+    ERRORSTRING="F;Error in data production;Check the log;$FOLLOWERS"
     trap 'LASTERR=$?; FUNCTION_NAME=${FUNCNAME[0]:-main};  exitstatus ${LASTERR} trap ${LINENO}; exit ${LASTERR}' ERR
 
     export TMPDIR=${PWD} #Temporary directory used by IFDHC
@@ -202,7 +202,7 @@ function data_production
 function generate_data_dump
 {
     TASKSTRING="generate_data_dump for ${file_stream} output stream"
-    ERRORSTRING="F@Error during dump Generation@Check the log@$FOLLOWERS"
+    ERRORSTRING="F;Error during dump Generation;Check the log;$FOLLOWERS"
 
     trap 'LASTERR=$?; FUNCTION_NAME=${FUNCNAME[0]:-main};  exitstatus ${LASTERR} trap ${LINENO}; exit ${LASTERR}' ERR
 
@@ -238,7 +238,7 @@ function generate_data_dump
 function compare_products_names
 {
     TASKSTRING="compare_products_names for ${file_stream} output stream"
-    ERRORSTRING="W@Error comparing products names@check the log@$FOLLOWERS"
+    ERRORSTRING="W;Error comparing products names;check the log;$FOLLOWERS"
 
     if [[ "$1" -eq 1 ]]
     then
@@ -253,7 +253,7 @@ function compare_products_names
         #~~~~~~~~~~~~~~~IF THERE'S A DIFFERENCE EXIT WITH ERROR CODE 201~~~~~~~~~~~~~~~
         if [[ "${STATUS}" -ne 0  ]]; then
             echo "${DIFF}"
-            ERRORSTRING="W@Differences in products names@Request new reference files@$FOLLOWERS"
+            ERRORSTRING="W;Differences in products names;Request new reference files;$FOLLOWERS"
             exitstatus 201
         else
             echo -e "none\n\n"
@@ -267,7 +267,7 @@ function compare_products_names
 function compare_products_sizes
 {
     TASKSTRING="compare_products_sizes for ${file_stream} output stream"
-    ERRORSTRING="F@Error comparing product sizes@Check the log@$FOLLOWERS"
+    ERRORSTRING="F;Error comparing product sizes;Check the log;$FOLLOWERS"
 
 
     if [[ "${1}" -eq 1 ]]
@@ -284,7 +284,7 @@ function compare_products_sizes
         #~~~~~~~~~~~~~~~IF THERE'S A DIFFERENCE EXIT WITH ERROR CODE 202 ~~~~~~~~~~~~~~~~~~~~~~~
         if [[ "${STATUS}" -ne 0 ]]; then
             echo "${DIFF}"
-            ERRORSTRING="W@Differences in products sizes@Request new reference files@$FOLLOWERS"
+            ERRORSTRING="W;Differences in products sizes;Request new reference files;$FOLLOWERS"
             exitstatus 202
         else
             echo -e "none\n\n"
@@ -308,7 +308,7 @@ function exitstatus
     #don't exit if the fetch of the reference failed,because we need to produce one and then upload it
     if [[ "${EXITSTATUS}" -ne 0 ]]; then
         if [[ -n "$ERRORSTRING" ]];then
-            echo "`basename $PWD`@${EXITSTATUS}@$ERRORSTRING" >> $WORKSPACE/data_production_stats.log
+            echo "`basename $PWD`;${EXITSTATUS};$ERRORSTRING" >> $WORKSPACE/data_production_stats.log
         fi
         exit "${EXITSTATUS}"
     fi
