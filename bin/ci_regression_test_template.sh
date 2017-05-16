@@ -27,7 +27,7 @@ EOF
 function initialize
 {
     TASKSTRING="initialize"
-    ERRORSTRING="F~Error initializing the test~Check the log~$FOLLOWERS"
+    ERRORSTRING="F~Error initializing the test~Check the log"
     trap 'LASTERR=$?; FUNCTION_NAME=${FUNCNAME[0]:-main};  exitstatus ${LASTERR} trap ${LINENO}; exit ${LASTERR}' ERR
 
     echo "running CI tests for ${proj_PREFIX}_ci."
@@ -117,7 +117,7 @@ function fetch_files
     old_errorstring="$ERRORSTRING"
     TASKSTRING="fetching $1 files"
 
-    ERRORSTRING="F~Error in fetching $1 files~Check if the $1 files are available~$FOLLOWERS"
+    ERRORSTRING="F~Error in fetching $1 files~Check if the $1 files are available"
 
     echo "fetching $1 files for ${proj_PREFIX}_ci."
     echo
